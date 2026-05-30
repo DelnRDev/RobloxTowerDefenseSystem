@@ -56,7 +56,6 @@ local function moveEnemy(enemy, WaypointsFolder)
      local enemyHumanoid = enemy:WaitForChild("Humanoid")
 
     for i = 1, #WaypointsFolder:GetChildren() do
-
         if enemy:GetAttribute("isRemoved") then
             return
         end
