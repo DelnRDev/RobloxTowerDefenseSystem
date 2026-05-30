@@ -5,7 +5,7 @@ local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
 local EnemyConfig = require(SharedFolder:WaitForChild("EnemyConfig"))
 
-local EnemyTemplate = Workspace:WaitForChild("EnemyTemplate")
+local EnemyTemplate = SharedFolder:WaitForChild("EnemyTemplate")
 
 local waves = {
     {

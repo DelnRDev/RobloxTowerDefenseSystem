@@ -11,17 +11,28 @@ local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
 
 local TowerClone = TowerTemplate:Clone()
 
+for _, obj in pairs(TowerClone:GetDescendants()) do
+    print(obj.ClassName)
+    if obj:IsA("Part") or obj:IsA("WedgePart") then
+
+        obj.Transparency = 0.5
+        obj.Anchored = true
+        obj.CanCollide = false
+
+    end
+
+end
+
 TowerClone.Parent = Workspace
 
-for _, obj in pairs(TowerClone:GetDescendants()) do
-    print(typeof(obj))
-end
---[[
-Mouse.TargetFilter = tower
+
+Mouse.TargetFilter = TowerClone
 
 Mouse.Move:Connect(function()
+
+    local towerSize = TowerClone:GetExtentsSize()
+    local towerHeight = towerSize.Y
    
-    tower:PivotTo(CFrame.new(Mouse.Hit.Position))   
+    TowerClone:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0)))    
 
 end)
-]]
