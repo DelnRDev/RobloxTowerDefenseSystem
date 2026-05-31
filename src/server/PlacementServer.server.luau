@@ -9,10 +9,15 @@ local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
 
 local TOWER_DAMAGE = 10
 local TOWER_COOLDOWN = 1
+local TOWER_RANGE = 30
 
 local function showBullet(origin, targetPosition)
 
     local distplacementVector = targetPosition - origin
+
+    if targetPosition == origin then -- unit vector = vector/|vector| , prevent division by zero
+        return
+    end
 
     local part = Instance.new("Part")
     part.BrickColor = BrickColor.new("Bright red")
@@ -23,8 +28,8 @@ local function showBullet(origin, targetPosition)
     part.Parent = Workspace
 
     local fHat = distplacementVector.Unit
-    local rHat = fHat:Cross(Vector3.yAxis)
-    local uHat = rHat:Cross(fHat)
+    local rHat = fHat:Cross(Vector3.yAxis).Unit
+    local uHat = rHat:Cross(fHat).Unit  
 
     part.CFrame = CFrame.new(origin) * CFrame.fromMatrix(Vector3.zero,rHat, uHat, -fHat) * CFrame.new(0, 0, -0.5 * distplacementVector.Magnitude)
 
@@ -49,26 +54,41 @@ local function getClosestEnemy(tower)
     
     for _, enemy in pairs(EnemyFolder:GetChildren()) do
         
-        local enemyPosition = enemy.HumanoidRootPart.Position
+        local enemyHumanoidRootPart = enemy:FindFirstChild("HumanoidRootPart")
+
+        if not enemyHumanoidRootPart then
+            continue
+        end
+
+        local enemyPosition = enemyHumanoidRootPart.Position
 
         local enemyDistance = (enemyPosition - towerPosition).Magnitude
         --print(enemy:GetPivot())
 
-        if closestDistance == nil then
+       
+        if enemyDistance <= TOWER_RANGE then 
 
-            closestDistance = enemyDistance
-            closestEnemy = enemy
+            if closestDistance == nil then
 
-        else
-        
-            if enemyDistance < closestDistance then
-
+                
                 closestDistance = enemyDistance
                 closestEnemy = enemy
+                
+
+            else
+            
+                if enemyDistance < closestDistance then
+
+                    closestDistance = enemyDistance
+                    closestEnemy = enemy
+
+                end
 
             end
 
         end
+
+  
 
     end
 
@@ -89,7 +109,14 @@ local function startAttackEnemy(tower)
             if enemyHumanoid and enemyHumanoid.Health > 0 then
                 
                 task.spawn(function()
-                    showBullet(tower.GunHead.Position, closestEnemy.HumanoidRootPart.Position)
+                    local GunHead = tower:FindFirstChild("GunHead")
+                    local enemyHumanoidRootPart = closestEnemy:FindFirstChild("HumanoidRootPart")
+
+                    if not GunHead or not enemyHumanoidRootPart then 
+                        return
+                    end
+
+                    showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
                 end)
                 
                 enemyHumanoid:TakeDamage(TOWER_DAMAGE)
