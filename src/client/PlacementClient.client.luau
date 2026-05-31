@@ -14,13 +14,13 @@ local isPreviewing = false
 local previewTower = nil
 
 local function createPreviewTower()
-    print("created")
+    --print("created")
     local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
 
     local TowerClone = TowerTemplate:Clone()
 
     for _, obj in pairs(TowerClone:GetDescendants()) do
-        print(obj.ClassName)
+        --print(obj.ClassName)
         if obj:IsA("BasePart") then
 
             obj.Transparency = 0.5
@@ -84,7 +84,7 @@ end)
 
 Mouse.Move:Connect(function()
 
-    print(previewTower)
+    --print(previewTower)
 
     if not isPreviewing or previewTower == nil then
         if previewTower then

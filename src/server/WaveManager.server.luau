@@ -1,6 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local EnemyFolder = Workspace:WaitForChild("Enemy")
+
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
 local EnemyConfig = require(SharedFolder:WaitForChild("EnemyConfig"))
@@ -76,7 +78,7 @@ local function spawnEnemy(enemyType, WaypointsFolder)
     cloneEnemy.Humanoid.Health = EnemyConfig[enemyType].Health
     cloneEnemy.Humanoid.WalkSpeed = EnemyConfig[enemyType].Speed
     cloneEnemy:SetAttribute("isRemoved", false)
-    cloneEnemy.Parent = Workspace
+    cloneEnemy.Parent = EnemyFolder
     cloneEnemy:PivotTo(WaypointsFolder:WaitForChild("1").CFrame)
 
     return cloneEnemy
@@ -99,7 +101,7 @@ local function spawnWave(waveInfo)
             
                 removeEnemy(enemy, 1)
             end)
-            print("move")
+            --print("move")
             moveEnemy(enemy, WaypointsFolder)
         end)
 
@@ -109,7 +111,7 @@ local function spawnWave(waveInfo)
 
     while enemyCount ~= 0 do
         task.wait(0.1)
-        print(enemyCount)
+        --print(enemyCount)
     end
 
    
@@ -118,16 +120,14 @@ end
 
 for i,v in ipairs(waves) do
     
-    --spawnWave(waves[i])
-    print("wave "..i.." begins")
+    
+   -- print("wave "..i.." begins")
     spawnWave(waves[i])
-    print("wave "..i.." is finished")
-    print("waiting before we start next wave")
+   -- print("wave "..i.." is finished")
+    --print("waiting before we start next wave")
     task.wait(5)
 
 end
 
-print("game is finished")
+--print("game is finished")
 
-
---spawnWave(waves[1])
