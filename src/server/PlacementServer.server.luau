@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
@@ -7,11 +8,15 @@ local templateTower = SharedFolder:WaitForChild("TowerTemplate")
 
 local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
 
+local TowersFolder = Workspace:WaitForChild("Towers")
+
 local TOWER_DAMAGE = 10
 local TOWER_COOLDOWN = 1
 local TOWER_RANGE = 30
 
 local TOWER_PRICE = 200
+
+local KILL_REWARD = 100
 
 
 local function showBullet(origin, targetPosition)
@@ -122,7 +127,21 @@ local function startAttackEnemy(tower)
                     showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
                 end)
                 
-                enemyHumanoid:TakeDamage(TOWER_DAMAGE)
+                if enemyHumanoid.Health - TOWER_DAMAGE <= 0 then
+                    
+                    local towerOwnerUserId = tower:GetAttribute("Owner")
+                    local rewardOwner = Players:GetPlayerByUserId(towerOwnerUserId)
+                    local leaderstats = rewardOwner and rewardOwner:FindFirstChild("leaderstats")
+                    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
+                    
+                    if rewardOwner and leaderstats and playerMoney then
+                        playerMoney.Value += KILL_REWARD
+                    else
+                        print(rewardOwner, leaderstats, playerMoney)
+                    end
+                    
+                end
+                    enemyHumanoid:TakeDamage(TOWER_DAMAGE)
 
             end
             
@@ -155,7 +174,8 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
 
     local cloneTemplate = templateTower:Clone()
     cloneTemplate:PivotTo(placementCFrame)
-    cloneTemplate.Parent = Workspace
+    cloneTemplate:SetAttribute("Owner", player.UserId)
+    cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)
 

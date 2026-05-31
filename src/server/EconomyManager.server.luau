@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 
-local START_MONEY = 500
+local START_MONEY = 1000
 
 Players.PlayerAdded:Connect(function(Player)
 
