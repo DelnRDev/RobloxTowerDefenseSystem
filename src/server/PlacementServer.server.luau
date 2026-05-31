@@ -10,9 +10,9 @@ local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 
-local TOWER_DAMAGE = 10
-local TOWER_COOLDOWN = 1
-local TOWER_RANGE = 30
+--local TOWER_DAMAGE = 10
+--local TOWER_COOLDOWN = 1
+--local TOWER_RANGE = 30
 
 local TOWER_PRICE = 200
 
@@ -74,7 +74,7 @@ local function getClosestEnemy(tower)
         --print(enemy:GetPivot())
 
        
-        if enemyDistance <= TOWER_RANGE then 
+        if enemyDistance <= tower:GetAttribute("Range") then 
 
             if closestDistance == nil then
 
@@ -127,7 +127,7 @@ local function startAttackEnemy(tower)
                     showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
                 end)
                 
-                if enemyHumanoid.Health - TOWER_DAMAGE <= 0 then
+                if enemyHumanoid.Health - tower:GetAttribute("Damage") <= 0 then
 
                     if not closestEnemy:GetAttribute("isRewarded") then
 
@@ -148,11 +148,11 @@ local function startAttackEnemy(tower)
                     end
                     
                 end
-                    enemyHumanoid:TakeDamage(TOWER_DAMAGE)
+                    enemyHumanoid:TakeDamage(tower:GetAttribute("Damage"))
 
             end
             
-            task.wait(TOWER_COOLDOWN)
+            task.wait(tower:GetAttribute("Cooldown"))
 
         end
 
@@ -182,6 +182,11 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
     local cloneTemplate = templateTower:Clone()
     cloneTemplate:PivotTo(placementCFrame)
     cloneTemplate:SetAttribute("Owner", player.UserId)
+    cloneTemplate:SetAttribute("Cooldown", 1)
+    cloneTemplate:SetAttribute("Damage", 10)
+    cloneTemplate:SetAttribute("Range", 30)
+    cloneTemplate:SetAttribute("Level", 1)
+    cloneTemplate:SetAttribute("UpgradeCost", 300)
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)

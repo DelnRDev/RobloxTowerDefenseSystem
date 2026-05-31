@@ -78,7 +78,7 @@ local function spawnEnemy(enemyType, WaypointsFolder)
     cloneEnemy.Humanoid.Health = EnemyConfig[enemyType].Health
     cloneEnemy.Humanoid.WalkSpeed = EnemyConfig[enemyType].Speed
     cloneEnemy:SetAttribute("isRemoved", false)
-    cloneEnmey:SetAttribute("isRewarded", false)
+    cloneEnemy:SetAttribute("isRewarded", false)
     cloneEnemy.Parent = EnemyFolder
     cloneEnemy:PivotTo(WaypointsFolder:WaitForChild("1").CFrame)
 
