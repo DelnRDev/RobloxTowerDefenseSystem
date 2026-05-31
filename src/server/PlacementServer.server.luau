@@ -128,16 +128,23 @@ local function startAttackEnemy(tower)
                 end)
                 
                 if enemyHumanoid.Health - TOWER_DAMAGE <= 0 then
-                    
-                    local towerOwnerUserId = tower:GetAttribute("Owner")
-                    local rewardOwner = Players:GetPlayerByUserId(towerOwnerUserId)
-                    local leaderstats = rewardOwner and rewardOwner:FindFirstChild("leaderstats")
-                    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
-                    
-                    if rewardOwner and leaderstats and playerMoney then
-                        playerMoney.Value += KILL_REWARD
-                    else
-                        print(rewardOwner, leaderstats, playerMoney)
+
+                    if not closestEnemy:GetAttribute("isRewarded") then
+
+                        closestEnemy:SetAttribute("isRewarded", true)
+
+                        local towerOwnerUserId = tower:GetAttribute("Owner")
+                        local rewardOwner = Players:GetPlayerByUserId(towerOwnerUserId)
+                        local leaderstats = rewardOwner and rewardOwner:FindFirstChild("leaderstats")
+                        local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
+                        
+                        if rewardOwner and leaderstats and playerMoney then
+
+                            playerMoney.Value += KILL_REWARD
+                        else
+                            print(rewardOwner, leaderstats, playerMoney)
+                        end
+
                     end
                     
                 end
@@ -156,7 +163,7 @@ end
 PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
    
     local leaderstats = player:FindFirstChild("leaderstats")
-    local playerMoney = leaderstats:FindFirstChild("Money")
+    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
 
     if not leaderstats or not playerMoney then
         print(player.Name.." leaderstats not found or player money not found")
