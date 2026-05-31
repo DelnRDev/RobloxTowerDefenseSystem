@@ -11,6 +11,9 @@ local TOWER_DAMAGE = 10
 local TOWER_COOLDOWN = 1
 local TOWER_RANGE = 30
 
+local TOWER_PRICE = 200
+
+
 local function showBullet(origin, targetPosition)
 
     local distplacementVector = targetPosition - origin
@@ -133,6 +136,23 @@ end
 
 PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
    
+    local leaderstats = player:FindFirstChild("leaderstats")
+    local playerMoney = leaderstats:FindFirstChild("Money")
+
+    if not leaderstats or not playerMoney then
+        print(player.Name.." leaderstats not found or player money not found")
+        return
+    end
+    
+    if playerMoney.Value < TOWER_PRICE then
+        print(player.Name.." does not have enough money")
+        return
+    end
+
+    print(playerMoney.Value)
+
+    playerMoney.Value -= TOWER_PRICE
+
     local cloneTemplate = templateTower:Clone()
     cloneTemplate:PivotTo(placementCFrame)
     cloneTemplate.Parent = Workspace
