@@ -7,6 +7,7 @@ local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 local templateTower = SharedFolder:WaitForChild("TowerTemplate")
 
 local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
+local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 
@@ -190,5 +191,29 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)
+
+end)
+
+TowerUpgradeEvent.OnServerEvent(function(player, tower)
+
+    local leaderstats = player:FindFirstChild("leaderstats")
+    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
+
+    if not leaderstats or not playerMoney then
+        print(player.Name.." leaderstats or money not found")
+        return
+    end
+
+    if playerMoney.Value < tower:GetAttribute("UpgradeCost") then
+        print(player.Name.." does not have enough money to upgrade")
+        return
+    end
+
+    playerMoney.Value -= tower:GetAttribute("UpgradeCost")
+    tower:SetAttribute("Level", tower:GetAttribute("Level") + 1)
+    tower:SetAttribut("Range", tower:GetAttribute("Range") + 5)
+    tower:SetAttribute("Damage", tower:GetAttribute("Damage") + 10)
+    tower:SetAttribute("UpgradeCost", tower:GetAttribute("UpgradeCost") * 1.5)
+
 
 end)
