@@ -18,6 +18,60 @@ local isPreviewing = false
 local previewTower = nil
 
 local towerSelected = nil
+local rangeCircleOn = nil
+
+local function RemoveRangeCircle(tower)
+
+    rangeCircle = nil
+
+    local rangeCircle = Workspace:FindFirstChild("RangeCircle")
+    if rangeCircle then
+        rangeCircle:Destroy()
+    end
+
+    
+
+end
+
+local function showRangeCircle(tower)
+
+    if rangeCircleOn and rangeCircle == towerSelected then
+        return
+    end
+
+    if rangeCircle then
+       RemoveRangeCircle()
+    end
+
+    rangeCircle = tower
+
+    local TowerRange = tower:GetAttribute("Range")
+    local TowerSize = tower:GetExtentsSize()
+    local TowerHeight = TowerSize.Y
+
+    local circle = Instance.new("Part")
+    circle.Name = "RangeCircle"
+    circle.Shape = Enum.PartType.Cylinder
+    circle.Size = Vector3.new(0.05, TowerRange, TowerRange)
+    circle.BrickColor = BrickColor.new("Bright green")
+    circle.CanCollide = false
+    circle.Anchored = true
+    circle.Transparency = 0.4
+    circle.Parent = Workspace
+
+    local transformedXHat = Vector3.new(0,1,0)
+    local transformedYHat = Vector3.new(-1,0,0)
+    local transformedZHat = Vector3.new(0,0,1)
+    local RotationMatrix = CFrame.fromMatrix(Vector3.zero, transformedXHat, transformedYHat, transformedZHat) --techniquely not just rotational matrix
+
+    local towerPivotPosition = tower:GetPivot().Position - Vector3.new(0,TowerHeight/2, 0)
+    local TranslationMatrix = CFrame.new(towerPivotPosition)
+
+    circle.CFrame = TranslationMatrix * RotationMatrix
+
+end
+
+
 
 local function createPreviewTower()
     --print("created")
@@ -213,17 +267,23 @@ Mouse.Button1Down:Connect(function()
         towerSelected = Mouse.Target:FindFirstAncestorWhichIsA("Model")
         
         print(Mouse.Target:FindFirstAncestorWhichIsA("Model"))
-        showTowerInfoGui(towerSelected)
         
+        showTowerInfoGui(towerSelected)
+
+        showRangeCircle(towerSelected)
         --code here what happens after selected
     else
         local PlayerGui = Player:FindFirstChild("PlayerGui")
         local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
         local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
+
+        RemoveRangeCircle()
         towerSelected = nil
+
         if MainFrame then
             MainFrame.Visible = false
         end
+
         if isPreviewing and previewTower then
             placementEvent:FireServer(previewTower:GetPivot())
             isPreviewing = false
