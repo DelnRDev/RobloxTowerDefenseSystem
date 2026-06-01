@@ -18,11 +18,11 @@ local isPreviewing = false
 local previewTower = nil
 
 local towerSelected = nil
-local rangeCircleOn = nil
+local SelectedRangeTower = nil
 
 local function RemoveRangeCircle(tower)
 
-    rangeCircle = nil
+    SelectedRangeTower = nil
 
     local rangeCircle = Workspace:FindFirstChild("RangeCircle")
     if rangeCircle then
@@ -35,15 +35,15 @@ end
 
 local function showRangeCircle(tower)
 
-    if rangeCircleOn and rangeCircle == towerSelected then
+    if SelectedRangeTower == tower then
         return
     end
 
-    if rangeCircle then
-       RemoveRangeCircle()
-    end
+   
+    RemoveRangeCircle()
+    
 
-    rangeCircle = tower
+    SelectedRangeTower = tower
 
     local TowerRange = tower:GetAttribute("Range")
     local TowerSize = tower:GetExtentsSize()
@@ -190,12 +190,12 @@ local function showTowerInfoGui(tower)
     local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
     local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
 
-    local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
+    --local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
 
     --local TowerFrame = script.Parent.MainFrame.TowerFrame
 
 
-    ShowTowerInViewportFrame(TowerTemplate,ViewportFrame)
+    ShowTowerInViewportFrame(tower,ViewportFrame)
     updateTowerInfoGui(tower)
     MainFrame.Visible = true
     
