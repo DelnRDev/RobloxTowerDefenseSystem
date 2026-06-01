@@ -52,7 +52,7 @@ local function showRangeCircle(tower)
     local circle = Instance.new("Part")
     circle.Name = "RangeCircle"
     circle.Shape = Enum.PartType.Cylinder
-    circle.Size = Vector3.new(0.05, TowerRange, TowerRange)
+    circle.Size = Vector3.new(0.05, TowerRange * 2, TowerRange * 2)  --range is just the radius, size is the diameter therefore the x2
     circle.BrickColor = BrickColor.new("Bright green")
     circle.CanCollide = false
     circle.Anchored = true

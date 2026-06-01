@@ -49,12 +49,13 @@ local function showBullet(origin, targetPosition)
 end
 
 local function getClosestEnemy(tower)
-   
+   --[[ using gun head to determine tower range
     local GunHead = tower:FindFirstChild("GunHead")
     if not GunHead then
         return
     end
-    local towerPosition = GunHead.Position
+    ]]
+    local towerPosition = tower:GetPivot().Position
 
 
     --get closest enemy
@@ -77,11 +78,12 @@ local function getClosestEnemy(tower)
         local enemyPosition = enemyHumanoidRootPart.Position
 
         local enemyDistance = (enemyPosition - towerPosition).Magnitude
+        
         --print(enemy:GetPivot())
 
        
         if enemyDistance <= tower:GetAttribute("Range") then 
-
+           -- print(enemyDistance)
             if closestDistance == nil then
 
                 
@@ -190,7 +192,7 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
     cloneTemplate:SetAttribute("Owner", player.UserId)
     cloneTemplate:SetAttribute("Cooldown", 1)
     cloneTemplate:SetAttribute("Damage", 10)
-    cloneTemplate:SetAttribute("Range", 30)
+    cloneTemplate:SetAttribute("Range", 15)
     cloneTemplate:SetAttribute("Level", 1)
     cloneTemplate:SetAttribute("UpgradeCost", 300)
     cloneTemplate.Parent = TowersFolder
