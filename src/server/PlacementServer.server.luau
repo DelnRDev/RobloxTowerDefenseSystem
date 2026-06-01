@@ -131,7 +131,7 @@ local function startAttackEnemy(tower)
                 if enemyHumanoid.Health - tower:GetAttribute("Damage") <= 0 then
 
                     if not closestEnemy:GetAttribute("isRewarded") then
-
+                        
                         closestEnemy:SetAttribute("isRewarded", true)
 
                         local towerOwnerUserId = tower:GetAttribute("Owner")

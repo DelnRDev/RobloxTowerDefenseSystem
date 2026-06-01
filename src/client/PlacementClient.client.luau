@@ -91,11 +91,14 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 
     local towerSize = cloneTower:GetExtentsSize()
 
-    local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(0, 3, 2)
+    local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(-3, 3, 2)
 
+    -- forming the basis for the rotational matrix
     local fHat = -cameraPositionVector.Unit
     local rHat = fHat:Cross(Vector3.yAxis).Unit
     local uHat = rHat:Cross(fHat).Unit
+
+    -- translation * rotation , i.e rotation -> translation
 
     local CompositionOfTransform = CFrame.new(cameraPositionVector) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat) 
 
