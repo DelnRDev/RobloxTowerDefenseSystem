@@ -9,6 +9,7 @@ local TowersFolder = Workspace:WaitForChild("Towers")
 
 local placementEvent = SharedFolder:WaitForChild("PlacementEvent")
 local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
+local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
 
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
@@ -104,6 +105,7 @@ local function createPreviewTower()
 
 end
 
+local SELL_RATE = 0.5
 
 local function updateTowerInfoGui(tower)
 
@@ -115,7 +117,9 @@ local function updateTowerInfoGui(tower)
     local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
     local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
     local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-    local UpgradeButton = MainFrame and MainFrame:FindFirstChild("UpgradeButton")
+    local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
+    local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
+    local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
 
     print(tower:GetAttribute("Cooldown"), tower:GetAttribute("Damage"), tower:GetAttribute("Range"),tostring(tower:GetAttribute("UpgradeCost")))
 
@@ -136,6 +140,12 @@ local function updateTowerInfoGui(tower)
         UpgradeButton.BackgroundColor3 = Color3.fromRGB(24,255,32)
         
         UpgradeButton.Text = "Upgrade: $"..tostring(tower:GetAttribute("UpgradeCost"))
+    end
+
+    if SellButton then
+        print("Ye sellbuutton")
+       SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_RATE))
+
     end
 
 end
@@ -236,7 +246,9 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
         local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
         local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
         local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-        local UpgradeButton = MainFrame and MainFrame:FindFirstChild("UpgradeButton")
+        local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
+        local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
+        local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
         
         if upgradeResult == "NOT ENOUGH MONEY" then
             local tempTow = towerSelected
@@ -256,7 +268,18 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
         print("requesting ugrade")
     end
 
+    if inputObj.KeyCode == Enum.KeyCode.X and towerSelected ~= nil then
 
+        local sellResult = TowerSellRemote:InvokeServer(towerSelected)
+
+        if sellResult then
+            
+            RemoveRangeCircle(towerSelected)
+            towerSelected = nil
+
+        end
+
+    end
 
 end)
 

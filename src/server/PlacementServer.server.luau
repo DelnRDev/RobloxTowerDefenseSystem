@@ -8,6 +8,7 @@ local templateTower = SharedFolder:WaitForChild("TowerTemplate")
 
 local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
 local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
+local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 
@@ -195,6 +196,7 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
     cloneTemplate:SetAttribute("Range", 15)
     cloneTemplate:SetAttribute("Level", 1)
     cloneTemplate:SetAttribute("UpgradeCost", 300)
+    cloneTemplate:SetAttribute("TotalValue", 300)
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)
@@ -228,7 +230,24 @@ TowerUpgradeEvent.OnServerInvoke = function(player, tower)
     tower:SetAttribute("Level", tower:GetAttribute("Level") + 1)
     tower:SetAttribute("Range", tower:GetAttribute("Range") + 5)
     tower:SetAttribute("Damage", tower:GetAttribute("Damage") + 10)
+    tower:SetAttribute("TotalValue", tower:GetAttribute("TotalValue") + tower:GetAttribute("UpgradeCost"))
     tower:SetAttribute("UpgradeCost", math.floor(tower:GetAttribute("UpgradeCost") * 1.5))
 
     return "UPGRADED"
+end
+
+local SELL_RATE = 0.5
+
+TowerSellRemote.OnServerInvoke = function(player, tower)
+
+    local TotalValue = tower:GetAttribute("TotalValue")
+
+    local leaderstats = player:FindFirstChild("leaderstats")
+    local playerMoney = leaderstats:FindFirstChild("Money")
+
+    tower:Destroy()
+
+    playerMoney.Value += TotalValue * (1- SELL_RATE)
+
+    return "SOLD"
 end
