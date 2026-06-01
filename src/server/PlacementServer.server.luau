@@ -131,7 +131,7 @@ local function startAttackEnemy(tower)
                 if enemyHumanoid.Health - tower:GetAttribute("Damage") <= 0 then
 
                     if not closestEnemy:GetAttribute("isRewarded") then
-                        
+
                         closestEnemy:SetAttribute("isRewarded", true)
 
                         local towerOwnerUserId = tower:GetAttribute("Owner")
@@ -198,6 +198,14 @@ TowerUpgradeEvent.OnServerInvoke = function(player, tower)
 
     local leaderstats = player:FindFirstChild("leaderstats")
     local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
+
+    if not tower:IsDescendantOf(TowersFolder) then
+        return
+    end
+
+    if tower:GetAttribute("Owner") ~= player.UserId then
+        return
+    end
 
     if not leaderstats or not playerMoney then
         print(player.Name.." leaderstats or money not found")

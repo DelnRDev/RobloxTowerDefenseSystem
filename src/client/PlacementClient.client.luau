@@ -85,6 +85,10 @@ end
 
 local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 
+    for _,obj in pairs(ViewportFrame:GetChildren()) do
+        obj:Destroy()
+    end
+
     local cloneTower = TowerModel:Clone()
     cloneTower:PivotTo(CFrame.new(0,0,0))
     cloneTower.Parent = ViewportFrame
@@ -197,7 +201,7 @@ end)
 
 Mouse.Button1Down:Connect(function()
 
-    if Mouse.Target:IsDescendantOf(TowersFolder) then
+    if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
         print("Yes")
         towerSelected = Mouse.Target.Parent
         
