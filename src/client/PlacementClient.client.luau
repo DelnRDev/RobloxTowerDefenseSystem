@@ -78,6 +78,9 @@ local function updateTowerInfoGui(tower)
     end
 
     if UpgradeButton then
+
+        UpgradeButton.BackgroundColor3 = Color3.fromRGB(24,255,32)
+        
         UpgradeButton.Text = "Upgrade: $"..tostring(tower:GetAttribute("UpgradeCost"))
     end
 
@@ -182,11 +185,15 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
         local UpgradeButton = MainFrame and MainFrame:FindFirstChild("UpgradeButton")
         
         if upgradeResult == "NOT ENOUGH MONEY" then
+            local tempTow = towerSelected
             UpgradeButton.BackgroundColor3 = Color3.fromRGB(255,0,0)
             UpgradeButton.Text = "You're broke ;("
             task.wait(1)
+            if not towerSelected or towerSelected ~= tempTow then
+                return -- just too check if the player already clicked something else
+            end
             UpgradeButton.BackgroundColor3 = Color3.fromRGB(24,255,32)
-            UpgradeButton.Text = "Upgrade: "..tostring(towerSelected:GetAttribute("UpgradeCost"))
+            UpgradeButton.Text = "Upgrade: $"..tostring(towerSelected:GetAttribute("UpgradeCost"))
             print(UpgradeButton.BackgroundColor3)
         elseif upgradeResult == "UPGRADED" then
             updateTowerInfoGui(towerSelected)
@@ -202,10 +209,10 @@ end)
 Mouse.Button1Down:Connect(function()
 
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
-        print("Yes")
-        towerSelected = Mouse.Target.Parent
+       -- print("Yes")
+        towerSelected = Mouse.Target:FindFirstAncestorWhichIsA("Model")
         
-        print(Mouse.Target.Parent)
+        print(Mouse.Target:FindFirstAncestorWhichIsA("Model"))
         showTowerInfoGui(towerSelected)
         
         --code here what happens after selected

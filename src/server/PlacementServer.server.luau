@@ -50,7 +50,12 @@ end
 
 local function getClosestEnemy(tower)
    
-    local towerPosition = tower.GunHead.Position
+    local GunHead = tower:FindFirstChild("GunHead")
+    if not GunHead then
+        return
+    end
+    local towerPosition = GunHead.Position
+
 
     --get closest enemy
     -- take damage
@@ -221,7 +226,7 @@ TowerUpgradeEvent.OnServerInvoke = function(player, tower)
     tower:SetAttribute("Level", tower:GetAttribute("Level") + 1)
     tower:SetAttribute("Range", tower:GetAttribute("Range") + 5)
     tower:SetAttribute("Damage", tower:GetAttribute("Damage") + 10)
-    tower:SetAttribute("UpgradeCost", tower:GetAttribute("UpgradeCost") * 1.5)
+    tower:SetAttribute("UpgradeCost", math.floor(tower:GetAttribute("UpgradeCost") * 1.5))
 
     return "UPGRADED"
 end
