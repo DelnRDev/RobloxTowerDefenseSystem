@@ -13,5 +13,22 @@ Players.PlayerAdded:Connect(function(Player)
     Money.Value = START_MONEY
     Money.Parent = LeaderstatsFolder
 
+    Player.CharacterAdded:Connect(function(char)
+        
+        for _, obj in pairs(char:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.CollisionGroup = "Enemies"
+                
+            end
+        end
+
+        char.DescendantAdded:Connect(function(obj)
+            if obj:IsA("BasePart") then
+                obj.CollisionGroup = "Enemies"
+            end
+        end)
+
+    end)
 end)
+
 

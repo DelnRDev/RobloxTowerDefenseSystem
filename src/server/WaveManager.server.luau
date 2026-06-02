@@ -82,6 +82,19 @@ local function spawnEnemy(enemyType, WaypointsFolder)
     cloneEnemy.Parent = EnemyFolder
     cloneEnemy:PivotTo(WaypointsFolder:WaitForChild("1").CFrame)
 
+     for _, obj in pairs(cloneEnemy:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            obj.CollisionGroup = "Enemies"
+            
+        end
+    end
+
+    cloneEnemy.DescendantAdded:Connect(function(obj)
+        if obj:IsA("BasePart") then
+            obj.CollisionGroup = "Enemies"
+        end
+    end)
+
     return cloneEnemy
 end
 

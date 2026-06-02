@@ -471,10 +471,16 @@ Mouse.Button1Down:Connect(function()
         end
 
         if isPreviewing and previewTower then
-            placementEvent:FireServer(previewTower:GetPivot())
-            isPreviewing = false
-            previewTower:Destroy()
-            previewTower = nil
+
+            if canPlaceTower() then
+                placementEvent:FireServer(previewTower:GetPivot())
+                isPreviewing = false
+                previewTower:Destroy()
+                previewTower = nil
+            else
+                print("you cannot place here")
+            end
+            
             --placeTower(previewTower)
         
 
@@ -520,6 +526,9 @@ Mouse.Move:Connect(function()
 
         if canPlaceTower() then
             print("can place")
+
+        else
+            print("you cannot place here")
         end
         
         previewTower:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0))) 
