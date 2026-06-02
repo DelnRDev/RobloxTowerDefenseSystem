@@ -6,6 +6,8 @@ local UserInputService = game:GetService("UserInputService")
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
+local PathFolder = Workspace:WaitForChild("Path")
+local BuildAreaFolder = Workspace:WaitForChild("BuildArea")
 
 local placementEvent = SharedFolder:WaitForChild("PlacementEvent")
 local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
@@ -22,6 +24,108 @@ local towerSelected = nil
 local SelectedRangeTower = nil
 local highlightedSelectedTower = nil
 local highlightedHoverTower = nil
+
+local function inBuildingArea()
+
+  
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterDescendantsInstances = {BuildAreaFolder}
+    overlapParams.FilterType = Enum.RaycastFilterType.Include
+    
+    local touch = Workspace:GetPartBoundsInBox(
+        previewTower:GetPivot(),
+        previewTower:GetExtentsSize(),
+        overlapParams
+    )
+    
+    if #touch > 0 then
+        return true
+
+    else
+        return false
+    end
+
+end
+
+local function inPath()
+
+    if not previewTower then
+        return
+    end
+
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterDescendantsInstances = {PathFolder}
+    overlapParams.FilterType = Enum.RaycastFilterType.Include
+    
+    local touch = Workspace:GetPartBoundsInBox(
+        previewTower:GetPivot(),
+        previewTower:GetExtentsSize(),
+        overlapParams
+    )
+
+    if #touch > 0 then
+        return true
+
+    else
+        return false
+    end
+
+end
+
+local function isOverlappingWithTower()
+
+    if not previewTower then
+        return
+    end
+
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterDescendantsInstances = {TowersFolder}
+    overlapParams.FilterType = Enum.RaycastFilterType.Include
+    
+    local touch = Workspace:GetPartBoundsInBox(
+        previewTower:GetPivot(),
+        previewTower:GetExtentsSize(),
+        overlapParams
+    )
+
+    if #touch > 0 then
+        return true
+
+    else
+        return false
+    end
+
+    
+
+end
+
+local function canPlaceTower()
+    
+    if not previewTower then
+        print("nah its not even previewing")
+        return
+    end
+
+    if inPath() then
+         print("nah its in the path")
+        return false
+    end
+
+    if not inBuildingArea() then
+         print("nah its not in the building area")
+        return false
+    end
+
+    if isOverlappingWithTower() then
+         print("nah its overlapping with other tower")
+        return false
+    end
+    
+
+    --print(inPath(),  inBuildingArea(), isOverlappingWithTower())
+
+    return true
+end
 
 local function highlightHoverTower(tower)
 
@@ -70,8 +174,6 @@ local function RemoveRangeCircle(tower)
     if rangeCircle then
         rangeCircle:Destroy()
     end
-
-    
 
 end
 
@@ -162,7 +264,7 @@ local function updateTowerInfoGui(tower)
     local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
     local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
 
-    print(tower:GetAttribute("Cooldown"), tower:GetAttribute("Damage"), tower:GetAttribute("Range"),tostring(tower:GetAttribute("UpgradeCost")))
+    --print(tower:GetAttribute("Cooldown"), tower:GetAttribute("Damage"), tower:GetAttribute("Range"),tostring(tower:GetAttribute("UpgradeCost")))
 
     if CooldownText then
         CooldownText.Text = "Cooldown: "..tostring(tower:GetAttribute("Cooldown"))
@@ -184,7 +286,7 @@ local function updateTowerInfoGui(tower)
     end
 
     if SellButton then
-        print("Ye sellbuutton")
+        --print("Ye sellbuutton")
        SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_PENALTY_RATE))
 
     end
@@ -216,8 +318,8 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 
     local finalMatrix = CFrame.lookAt(cameraPositionVector, Vector3.new(0,0,0))
 
-    print(CompositionOfTransform)
-    print(finalMatrix)
+    --print(CompositionOfTransform)
+    --print(finalMatrix)
 
     local Camera = Instance.new("Camera")
     Camera.CFrame = CompositionOfTransform
@@ -303,12 +405,12 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
             end
             UpgradeButton.BackgroundColor3 = Color3.fromRGB(24,255,32)
             UpgradeButton.Text = "Upgrade: $"..tostring(towerSelected:GetAttribute("UpgradeCost"))
-            print(UpgradeButton.BackgroundColor3)
+            --print(UpgradeButton.BackgroundColor3)
         elseif upgradeResult == "UPGRADED" then
             updateTowerInfoGui(towerSelected)
         end
         
-        print("requesting ugrade")
+        --print("requesting ugrade")
     end
 
     if inputObj.KeyCode == Enum.KeyCode.X and towerSelected ~= nil then
@@ -328,9 +430,11 @@ end)
 
 Mouse.Button1Down:Connect(function()
 
+    --print(canPlaceTower())
+
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
 
-        print(Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") , Player.UserId )
+        --print(Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") , Player.UserId )
 
         if Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") ~= Player.UserId then
             return
@@ -342,7 +446,7 @@ Mouse.Button1Down:Connect(function()
         highlightedHoverTower = nil
         towerSelected = Mouse.Target:FindFirstAncestorWhichIsA("Model")
         
-        print(Mouse.Target:FindFirstAncestorWhichIsA("Model"))
+        --print(Mouse.Target:FindFirstAncestorWhichIsA("Model"))
         
         showTowerInfoGui(towerSelected)
 
@@ -380,13 +484,13 @@ Mouse.Button1Down:Connect(function()
 end)
 
 Mouse.Move:Connect(function()
-
+    
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
 
         local tower = Mouse.Target:FindFirstAncestorWhichIsA("Model")
         --removeTowerHighlight(highlightedHoverTower)
         if tower ~= towerSelected then
-            print(tower, towerSelected)
+            --print(tower, towerSelected)
             --removeTowerHighlight
             removeTowerHighlight(highlightedHoverTower)
             highlightHoverTower(tower)
@@ -402,15 +506,21 @@ Mouse.Move:Connect(function()
             highlightedHoverTower = nil
        -- end
         if not isPreviewing or previewTower == nil then
-                if previewTower then
-                    previewTower:Destroy()
-                    previewTower = nil
-                end
-                return
+            if previewTower then
+                previewTower:Destroy()
+                previewTower = nil
             end
+            return
+        end
+
+       
 
         local towerSize = previewTower:GetExtentsSize()
         local towerHeight = towerSize.Y
+
+        if canPlaceTower() then
+            print("can place")
+        end
         
         previewTower:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0))) 
 

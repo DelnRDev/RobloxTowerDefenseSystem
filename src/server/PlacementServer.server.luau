@@ -184,7 +184,7 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
         return
     end
 
-    print(playerMoney.Value)
+    --print(playerMoney.Value)
 
     playerMoney.Value -= TOWER_PRICE
 
