@@ -117,7 +117,7 @@ local function startAttackEnemy(tower)
 
     task.spawn(function()
 
-        while true do
+        while tower.Parent do
 
             local closestEnemy = getClosestEnemy(tower)
 
@@ -196,7 +196,7 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
     cloneTemplate:SetAttribute("Range", 15)
     cloneTemplate:SetAttribute("Level", 1)
     cloneTemplate:SetAttribute("UpgradeCost", 300)
-    cloneTemplate:SetAttribute("TotalValue", 300)
+    cloneTemplate:SetAttribute("TotalValue", TOWER_PRICE)
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)
@@ -236,18 +236,34 @@ TowerUpgradeEvent.OnServerInvoke = function(player, tower)
     return "UPGRADED"
 end
 
-local SELL_RATE = 0.5
+local SELL_PENALTY_RATE = 0.5
 
 TowerSellRemote.OnServerInvoke = function(player, tower)
+
+    if not tower:IsDescendantOf(TowersFolder) then
+        return
+    end
+
+    if tower:GetAttribute("Owner") ~= player.UserId then
+        print("its not yours")
+        return
+    end
 
     local TotalValue = tower:GetAttribute("TotalValue")
 
     local leaderstats = player:FindFirstChild("leaderstats")
-    local playerMoney = leaderstats:FindFirstChild("Money")
+    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
 
-    tower:Destroy()
+    if playerMoney then
+        tower:Destroy()
 
-    playerMoney.Value += TotalValue * (1- SELL_RATE)
+        playerMoney.Value += TotalValue * (1- SELL_PENALTY_RATE)
 
-    return "SOLD"
+        return "SOLD"
+    else
+        print(player.Name.." money not found while trying to sell tower")
+        return "ERROR"
+    end
+
+    
 end

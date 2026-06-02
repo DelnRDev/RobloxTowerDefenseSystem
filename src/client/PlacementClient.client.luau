@@ -20,6 +20,47 @@ local previewTower = nil
 
 local towerSelected = nil
 local SelectedRangeTower = nil
+local highlightedSelectedTower = nil
+local highlightedHoverTower = nil
+
+local function highlightHoverTower(tower)
+
+    if tower:FindFirstChild("Highlight") then
+        return
+    end
+
+    local highlight = Instance.new("Highlight")
+    highlight.FillColor = Color3.fromRGB(11, 117, 255)
+    highlight.Name = "Highlight"
+    highlight.Parent = tower
+
+end
+
+local function highlightSelectedTower(tower)
+
+    if tower:FindFirstChild("Highlight") then
+        return
+    end
+
+    local highlight = Instance.new("Highlight")
+    highlight.FillColor = Color3.fromRGB(251, 255, 26)
+    highlight.Name = "Highlight"
+    highlight.Parent = tower
+
+end
+
+
+
+
+local function removeTowerHighlight(tower)
+
+    local Hightlight = tower and tower:FindFirstChild("Highlight")
+    if Hightlight then
+        
+        Hightlight:Destroy()
+    end
+
+end
 
 local function RemoveRangeCircle(tower)
 
@@ -105,7 +146,7 @@ local function createPreviewTower()
 
 end
 
-local SELL_RATE = 0.5
+local SELL_PENALTY_RATE = 0.5
 
 local function updateTowerInfoGui(tower)
 
@@ -144,7 +185,7 @@ local function updateTowerInfoGui(tower)
 
     if SellButton then
         print("Ye sellbuutton")
-       SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_RATE))
+       SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_PENALTY_RATE))
 
     end
 
@@ -213,6 +254,18 @@ end
 
 UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
 
+    local PlayerGui = Player:FindFirstChild("PlayerGui")
+    local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
+    local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
+    local StatsFrame = MainFrame and MainFrame:FindFirstChild("StatsFrame")
+    local TowerFrame = MainFrame and MainFrame:FindFirstChild("TowerFrame")
+    local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
+    local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
+    local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
+    local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
+    local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
+    local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
+
     if gameProccessed then
 
         return
@@ -238,17 +291,7 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
             return
         end
 
-        local PlayerGui = Player:FindFirstChild("PlayerGui")
-        local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-        local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-        local StatsFrame = MainFrame and MainFrame:FindFirstChild("StatsFrame")
-        local TowerFrame = MainFrame and MainFrame:FindFirstChild("TowerFrame")
-        local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
-        local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
-        local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-        local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
-        local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
-        local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
+      
         
         if upgradeResult == "NOT ENOUGH MONEY" then
             local tempTow = towerSelected
@@ -276,7 +319,7 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
             
             RemoveRangeCircle(towerSelected)
             towerSelected = nil
-
+            MainFrame.Visible = false
         end
 
     end
@@ -286,7 +329,17 @@ end)
 Mouse.Button1Down:Connect(function()
 
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
+
+        print(Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") , Player.UserId )
+
+        if Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") ~= Player.UserId then
+            return
+        end
        -- print("Yes")
+        
+        removeTowerHighlight(towerSelected) --remove highlight on previously selected tower
+        removeTowerHighlight(highlightedHoverTower)
+        highlightedHoverTower = nil
         towerSelected = Mouse.Target:FindFirstAncestorWhichIsA("Model")
         
         print(Mouse.Target:FindFirstAncestorWhichIsA("Model"))
@@ -294,6 +347,8 @@ Mouse.Button1Down:Connect(function()
         showTowerInfoGui(towerSelected)
 
         showRangeCircle(towerSelected)
+
+        highlightSelectedTower(towerSelected)
         --code here what happens after selected
     else
         local PlayerGui = Player:FindFirstChild("PlayerGui")
@@ -301,8 +356,12 @@ Mouse.Button1Down:Connect(function()
         local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
 
         RemoveRangeCircle()
+        removeTowerHighlight(towerSelected)
+
         towerSelected = nil
 
+        
+        
         if MainFrame then
             MainFrame.Visible = false
         end
@@ -319,17 +378,42 @@ Mouse.Button1Down:Connect(function()
     end
 
 end)
-
+--[[
 Mouse.Move:Connect(function()
 
     --print(previewTower)
-
     
-
+    if towerSelected ~=nil then
+        return
+    end
+    
+    
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
         --show tower hover effect
         
-    else
+
+            if  highlightedTower ~= towerSelected then
+                removeTowerHighlight(highlightedTower)
+                --highlightedTower = nil
+                 highlightedTower = Mouse.Target:FindFirstAncestorWhichIsA("Model")
+                highlightHoverTower(highlightedTower)
+            else
+                return
+            end
+           
+
+
+
+        
+
+       
+    else    
+       
+       if  highlightedTower ~= towerSelected then
+            removeTowerHighlight(highlightedTower)
+            highlightedTower = nil
+       end
+
         if not isPreviewing or previewTower == nil then
             if previewTower then
                 previewTower:Destroy()
@@ -349,3 +433,42 @@ end)
 
 
 
+]]
+
+Mouse.Move:Connect(function()
+
+    if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
+
+        local tower = Mouse.Target:FindFirstAncestorWhichIsA("Model")
+        --removeTowerHighlight(highlightedHoverTower)
+        if tower ~= towerSelected then
+            print(tower, towerSelected)
+            --removeTowerHighlight
+            removeTowerHighlight(highlightedHoverTower)
+            highlightHoverTower(tower)
+            highlightedHoverTower = tower
+        else
+            removeTowerHighlight(highlightedHoverTower)
+        end
+
+    else
+       -- if highlightedHoverTower ~= towerSelected then
+            
+            removeTowerHighlight(highlightedHoverTower)
+            highlightedHoverTower = nil
+       -- end
+        if not isPreviewing or previewTower == nil then
+                if previewTower then
+                    previewTower:Destroy()
+                    previewTower = nil
+                end
+                return
+            end
+
+        local towerSize = previewTower:GetExtentsSize()
+        local towerHeight = towerSize.Y
+        
+        previewTower:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0))) 
+
+    end
+end)
