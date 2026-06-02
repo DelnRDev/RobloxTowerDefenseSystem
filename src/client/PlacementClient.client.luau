@@ -378,62 +378,6 @@ Mouse.Button1Down:Connect(function()
     end
 
 end)
---[[
-Mouse.Move:Connect(function()
-
-    --print(previewTower)
-    
-    if towerSelected ~=nil then
-        return
-    end
-    
-    
-    if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
-        --show tower hover effect
-        
-
-            if  highlightedTower ~= towerSelected then
-                removeTowerHighlight(highlightedTower)
-                --highlightedTower = nil
-                 highlightedTower = Mouse.Target:FindFirstAncestorWhichIsA("Model")
-                highlightHoverTower(highlightedTower)
-            else
-                return
-            end
-           
-
-
-
-        
-
-       
-    else    
-       
-       if  highlightedTower ~= towerSelected then
-            removeTowerHighlight(highlightedTower)
-            highlightedTower = nil
-       end
-
-        if not isPreviewing or previewTower == nil then
-            if previewTower then
-                previewTower:Destroy()
-                previewTower = nil
-            end
-            return
-        end
-
-        local towerSize = previewTower:GetExtentsSize()
-        local towerHeight = towerSize.Y
-        
-        previewTower:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0))) 
-
-    end
-end)
-
-
-
-
-]]
 
 Mouse.Move:Connect(function()
 
