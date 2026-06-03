@@ -4,6 +4,8 @@ local Workspace = game:GetService("Workspace")
 local GameStats = Workspace:WaitForChild("GameStats")
 local CurrentWave = GameStats:WaitForChild("CurrentWave")
 local BaseHealth = GameStats:WaitForChild("BaseHealth")
+local GAMEOVER = GameStats:WaitForChild("GameOver")
+local Victory = GameStats:WaitForChild("Victory")
 
 local EnemyFolder = Workspace:WaitForChild("Enemy")
 
@@ -15,7 +17,7 @@ local EnemyTemplate = SharedFolder:WaitForChild("EnemyTemplate")
 
 local ENEMY_DAMAGE = 20
 
-local GAMEOVER = false
+
 
 local waves = {
     {
@@ -75,7 +77,7 @@ local function moveEnemy(enemy, WaypointsFolder)
 
     for i = 1, #WaypointsFolder:GetChildren() do
 
-        if GAMEOVER then
+        if GAMEOVER.Value then
            -- removeEnemy(enemy)
             return
         end
@@ -92,7 +94,7 @@ local function moveEnemy(enemy, WaypointsFolder)
     BaseHealth.Value -= ENEMY_DAMAGE
     BaseHealth.Value = math.max(0,BaseHealth.Value)
     if BaseHealth.Value <= 0 then
-        GAMEOVER = true
+        GAMEOVER.Value = true
         clearAllEnemies()
         return
     end
@@ -140,7 +142,7 @@ local function spawnWave(waveInfo)
 
     for i = 1, waveInfo.Count do
 
-        if GAMEOVER then
+        if GAMEOVER.Value then
             return
         end
 
@@ -164,7 +166,7 @@ local function spawnWave(waveInfo)
     end
 
     while enemyCount ~= 0 do
-        if GAMEOVER then
+        if GAMEOVER.Value then
             return
         end
         task.wait()
@@ -177,7 +179,7 @@ end
 
 for i,v in ipairs(waves) do
     
-    if GAMEOVER then
+    if GAMEOVER.Value then
         break
     end
     
@@ -186,14 +188,16 @@ for i,v in ipairs(waves) do
    -- print("wave "..i.." is finished")
     --print("waiting before we start next wave")
     
-    if GAMEOVER then
+    if GAMEOVER.Value then
         break
     end
     task.wait(5) 
 end
 
-if GAMEOVER then
+if GAMEOVER.Value == true then
+   -- print(GAMEOVER.Value)
     print("game over")
 else
+    Victory.Value = true
     print("victory")
 end

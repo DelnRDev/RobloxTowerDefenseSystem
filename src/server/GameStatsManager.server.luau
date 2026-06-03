@@ -13,3 +13,13 @@ local CurrentWave = Instance.new("IntValue")
 CurrentWave.Name = "CurrentWave"
 CurrentWave.Value = 1
 CurrentWave.Parent = GameStats
+
+local GameOver = Instance.new("BoolValue")
+GameOver.Name = "GameOver"
+GameOver.Value = false
+GameOver.Parent = GameStats
+
+local Victory = Instance.new("BoolValue")
+Victory.Name = "Victory"
+Victory.Value = false
+Victory.Parent = GameStats
