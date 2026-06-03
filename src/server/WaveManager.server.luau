@@ -61,6 +61,14 @@ local function removeEnemy(enemy, delayRemove)
 
 end
 
+local function clearAllEnemies()
+
+    for _,enemy in pairs(EnemyFolder:GetChildren()) do
+        removeEnemy(enemy)
+    end
+
+end
+
 local function moveEnemy(enemy, WaypointsFolder)
 
      local enemyHumanoid = enemy:WaitForChild("Humanoid")
@@ -68,6 +76,7 @@ local function moveEnemy(enemy, WaypointsFolder)
     for i = 1, #WaypointsFolder:GetChildren() do
 
         if GAMEOVER then
+           -- removeEnemy(enemy)
             return
         end
 
@@ -76,13 +85,19 @@ local function moveEnemy(enemy, WaypointsFolder)
         end
 
         enemyHumanoid:MoveTo(WaypointsFolder:WaitForChild(tostring(i)).Position)
+        
         enemyHumanoid.MoveToFinished:Wait()
 
     end
     BaseHealth.Value -= ENEMY_DAMAGE
+    BaseHealth.Value = math.max(0,BaseHealth.Value)
     if BaseHealth.Value <= 0 then
         GAMEOVER = true
+        clearAllEnemies()
+        return
     end
+
+
     removeEnemy(enemy)
     
     
@@ -156,7 +171,7 @@ local function spawnWave(waveInfo)
         --print(enemyCount)
     end
 
-   
+   task.wait(5) 
    
 end
 
@@ -170,9 +185,12 @@ for i,v in ipairs(waves) do
     spawnWave(waves[i])
    -- print("wave "..i.." is finished")
     --print("waiting before we start next wave")
-    task.wait(5)
+    
 
 end
 
-print("game is finished")
-
+if GAMEOVER then
+    print("game over")
+else
+    print("victory")
+end
