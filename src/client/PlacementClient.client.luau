@@ -39,6 +39,9 @@ end
 
 local function inBuildingArea()
 
+    if not previewTower then
+        return
+    end
   
     local overlapParams = OverlapParams.new()
     overlapParams.FilterDescendantsInstances = {BuildAreaFolder}
@@ -480,7 +483,7 @@ Mouse.Button1Down:Connect(function()
         if Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") ~= Player.UserId then
             return
         end
-       -- print("Yes")
+       -- print("Yes") 
         
         removeTowerHighlight(towerSelected) --remove highlight on previously selected tower
         removeTowerHighlight(highlightedHoverTower)
@@ -512,7 +515,7 @@ Mouse.Button1Down:Connect(function()
         end
 
         if isPreviewing and previewTower then
-
+            
             if canPlaceTower() then
                 placementEvent:FireServer(previewTower:GetPivot())
                 isPreviewing = false
@@ -522,6 +525,7 @@ Mouse.Button1Down:Connect(function()
                 print("you cannot place here")
             end
             
+          
             --placeTower(previewTower)
         
 
@@ -565,15 +569,17 @@ Mouse.Move:Connect(function()
         local towerSize = previewTower:GetExtentsSize()
         local towerHeight = towerSize.Y
 
+        
+        previewTower:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0))) 
+
         if canPlaceTower() then
-            print("can place")
+            --print("can place")
             setPreviewColor(BrickColor.new("Bright green"))
         else
             setPreviewColor(BrickColor.new("Bright red"))
-            print("you cannot place here")
+           -- print("you cannot place here")
         end
         
-        previewTower:PivotTo(CFrame.new(Mouse.Hit.Position + Vector3.new(0,towerHeight/2,0))) 
 
     end
 end)

@@ -11,6 +11,9 @@ local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
+local BuildArea = Workspace:WaitForChild("BuildArea")
+local PathFolder = Workspace:WaitForChild("Path")
+
 
 --local TOWER_DAMAGE = 10
 --local TOWER_COOLDOWN = 1
@@ -25,7 +28,7 @@ local function showBullet(origin, targetPosition)
 
     local distplacementVector = targetPosition - origin
 
-    if targetPosition == origin then -- unit vector = vector/|vector| , prevent division by zero
+    if distplacementVector.Magnitude < 0.001 then -- unit vector = vector/|vector| , prevent division by zero
         return
     end
 
@@ -169,8 +172,88 @@ local function startAttackEnemy(tower)
 
 end
 
+local function isOverlappingWithTower(placementCFrame)
+
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterDescendantsInstances = {TowersFolder}
+    overlapParams.FilterType = Enum.RaycastFilterType.Include 
+
+     local touching = Workspace:GetPartBoundsInBox(
+            placementCFrame,
+            templateTower:GetExtentsSize(),
+            overlapParams
+    )
+
+    if #touching > 0 then
+        return true
+    else
+        return false
+    end
+
+end
+
+local function isInBuildArea(placementCFrame)
+
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterDescendantsInstances = {BuildArea}
+    overlapParams.FilterType = Enum.RaycastFilterType.Include
+
+    local touching = Workspace:GetPartBoundsInBox(
+        placementCFrame,
+        templateTower:GetExtentsSize(),
+        overlapParams
+    )
+
+    if #touching > 0 then
+        return true
+    else
+        return false
+    end
+
+end
+
+local function inPath(placementCFrame)
+
+    local overlapParams = OverlapParams.new()
+    overlapParams.FilterDescendantsInstances = {PathFolder}
+    overlapParams.FilterType = Enum.RaycastFilterType.Include
+
+    local touching = Workspace:GetPartBoundsInBox(
+        placementCFrame,
+        templateTower:GetExtentsSize(),
+        overlapParams
+    )
+
+    if #touching > 0 then
+        return true
+    else
+        return false
+    end
+
+end
+
 PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
-   
+
+   --check if the position is a valid position
+    if isOverlappingWithTower(placementCFrame) then
+        print("overlapping")
+        return
+    end
+
+    if inPath(placementCFrame) then
+        print("is in path")
+        return
+    end
+
+    if not isInBuildArea(placementCFrame) then
+        print("is not in build area")
+        return
+    end
+    --[[
+    if isOverlappingWithTower(placementCFrame) or not isInBuildArea(placementCFrame) or inPath(placementCFrame) then
+        return 
+    end
+    ]]
     local leaderstats = player:FindFirstChild("leaderstats")
     local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
 
@@ -208,7 +291,7 @@ TowerUpgradeEvent.OnServerInvoke = function(player, tower)
     local leaderstats = player:FindFirstChild("leaderstats")
     local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
 
-    if not tower:IsDescendantOf(TowersFolder) then
+    if not tower or not tower:IsDescendantOf(TowersFolder) then
         return
     end
 
@@ -240,7 +323,7 @@ local SELL_PENALTY_RATE = 0.5
 
 TowerSellRemote.OnServerInvoke = function(player, tower)
 
-    if not tower:IsDescendantOf(TowersFolder) then
+    if not tower or not tower:IsDescendantOf(TowersFolder) then
         return
     end
 
