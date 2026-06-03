@@ -445,6 +445,8 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
             --print(UpgradeButton.BackgroundColor3)
         elseif upgradeResult == "UPGRADED" then
             updateTowerInfoGui(towerSelected)
+            RemoveRangeCircle()
+            showRangeCircle(towerSelected)
         end
         
         --print("requesting ugrade")
