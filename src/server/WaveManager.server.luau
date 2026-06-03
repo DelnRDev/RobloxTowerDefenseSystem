@@ -171,7 +171,7 @@ local function spawnWave(waveInfo)
         --print(enemyCount)
     end
 
-   task.wait(5) 
+   
    
 end
 
@@ -186,7 +186,10 @@ for i,v in ipairs(waves) do
    -- print("wave "..i.." is finished")
     --print("waiting before we start next wave")
     
-
+    if GAMEOVER then
+        break
+    end
+    task.wait(5) 
 end
 
 if GAMEOVER then
