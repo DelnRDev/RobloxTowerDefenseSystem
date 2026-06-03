@@ -1,4 +1,5 @@
 local PhysicsService = game:GetService("PhysicsService")
+local Players = game:GetService("Players")
 
 local PlayersGroupName = "Players"
 local EnemiesGroupName = "Enemies"
@@ -30,3 +31,22 @@ end
 
 PhysicsService:CollisionGroupSetCollidable(PlayersGroupName, EnemiesGroupName, false)
 
+
+Players.PlayerAdded:Connect(function(Player)
+    Player.CharacterAdded:Connect(function(char)
+        
+        for _, obj in pairs(char:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.CollisionGroup = PlayersGroupName
+                
+            end
+        end
+
+        char.DescendantAdded:Connect(function(obj)
+            if obj:IsA("BasePart") then
+                obj.CollisionGroup = PlayersGroupName
+            end
+        end)
+
+    end)
+end)

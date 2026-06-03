@@ -79,8 +79,7 @@ local function spawnEnemy(enemyType, WaypointsFolder)
     cloneEnemy.Humanoid.WalkSpeed = EnemyConfig[enemyType].Speed
     cloneEnemy:SetAttribute("isRemoved", false)
     cloneEnemy:SetAttribute("isRewarded", false)
-    cloneEnemy.Parent = EnemyFolder
-    cloneEnemy:PivotTo(WaypointsFolder:WaitForChild("1").CFrame)
+    
 
      for _, obj in pairs(cloneEnemy:GetDescendants()) do
         if obj:IsA("BasePart") then
@@ -94,6 +93,9 @@ local function spawnEnemy(enemyType, WaypointsFolder)
             obj.CollisionGroup = "Enemies"
         end
     end)
+
+    cloneEnemy.Parent = EnemyFolder
+    cloneEnemy:PivotTo(WaypointsFolder:WaitForChild("1").CFrame)
 
     return cloneEnemy
 end
