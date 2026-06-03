@@ -25,6 +25,18 @@ local SelectedRangeTower = nil
 local highlightedSelectedTower = nil
 local highlightedHoverTower = nil
 
+local function setPreviewColor(color)
+
+    for i, obj in pairs(previewTower:GetDescendants()) do
+
+        if obj:IsA("BasePart") then
+            obj.BrickColor = color
+        end
+
+    end
+
+end
+
 local function inBuildingArea()
 
   
@@ -199,6 +211,8 @@ local function showRangeCircle(tower)
     circle.Size = Vector3.new(0.05, TowerRange * 2, TowerRange * 2)  --range is just the radius, size is the diameter therefore the x2
     circle.BrickColor = BrickColor.new("Bright green")
     circle.CanCollide = false
+    circle.CanTouch = false
+    circle.CanQuery = false
     circle.Anchored = true
     circle.Transparency = 0.4
     circle.Parent = Workspace
@@ -374,6 +388,21 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
     end
     
     if inputObj.KeyCode == Enum.KeyCode.P then
+
+        local PlayerGui = Player:FindFirstChild("PlayerGui")
+        local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
+        local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
+
+
+        RemoveRangeCircle()
+        removeTowerHighlight(towerSelected)
+
+        towerSelected = nil
+
+        if MainFrame then
+            MainFrame.Visible = false
+        end
+
         if isPreviewing then
             isPreviewing = false
             previewTower:Destroy()
@@ -381,6 +410,11 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
         else
             isPreviewing = true
             previewTower = createPreviewTower()
+            if canPlaceTower() then
+                setPreviewColor(BrickColor.new("Bright green"))
+            else
+                setPreviewColor(BrickColor.new("Bright red"))
+            end
         end
        
     end
@@ -435,6 +469,13 @@ Mouse.Button1Down:Connect(function()
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
 
         --print(Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") , Player.UserId )
+        
+        if isPreviewing and previewTower then
+            isPreviewing = false
+            previewTower:Destroy()
+            previewTower = nil
+        end
+        
 
         if Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") ~= Player.UserId then
             return
@@ -526,8 +567,9 @@ Mouse.Move:Connect(function()
 
         if canPlaceTower() then
             print("can place")
-
+            setPreviewColor(BrickColor.new("Bright green"))
         else
+            setPreviewColor(BrickColor.new("Bright red"))
             print("you cannot place here")
         end
         
