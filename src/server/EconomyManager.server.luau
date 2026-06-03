@@ -17,14 +17,14 @@ Players.PlayerAdded:Connect(function(Player)
         
         for _, obj in pairs(char:GetDescendants()) do
             if obj:IsA("BasePart") then
-                obj.CollisionGroup = "Enemies"
+                obj.CollisionGroup = "Players"
                 
             end
         end
 
         char.DescendantAdded:Connect(function(obj)
             if obj:IsA("BasePart") then
-                obj.CollisionGroup = "Enemies"
+                obj.CollisionGroup = "Players"
             end
         end)
 
