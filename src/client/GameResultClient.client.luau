@@ -3,16 +3,18 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-local PlayerGui = Player:WaitForChild("PlayerGui")
-local GameResultGui = PlayerGui:WaitForChild("GameResultGui")
-local MainFrame = GameResultGui:WaitForChild("MainFrame")
-local GameResultText = MainFrame:WaitForChild("GameResultText")
 
 local GameStats = Workspace:WaitForChild("GameStats")
 local GameOver = GameStats:WaitForChild("GameOver")
 local Victory = GameStats:WaitForChild("Victory")
 
 local function showGameResultUI(victory)
+
+    local PlayerGui = Player:FindFirstChild("PlayerGui")
+    local GameResultGui = PlayerGui and PlayerGui:FindFirstChild("GameResultGui")
+    local MainFrame = GameResultGui and GameResultGui:FindFirstChild("MainFrame")
+    local GameResultText = MainFrame and MainFrame:FindFirstChild("GameResultText")
+
 
     MainFrame.Visible = true
 
