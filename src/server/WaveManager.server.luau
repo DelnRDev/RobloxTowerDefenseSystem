@@ -1,6 +1,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local GameStats = Workspace:WaitForChild("GameStats")
+local CurrentWave = GameStats:WaitForChild("CurrentWave")
+local BaseHealth = GameStats:WaitForChild("BaseHealth")
+
 local EnemyFolder = Workspace:WaitForChild("Enemy")
 
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
@@ -8,6 +12,10 @@ local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 local EnemyConfig = require(SharedFolder:WaitForChild("EnemyConfig"))
 
 local EnemyTemplate = SharedFolder:WaitForChild("EnemyTemplate")
+
+local ENEMY_DAMAGE = 20
+
+local GAMEOVER = false
 
 local waves = {
     {
@@ -58,6 +66,11 @@ local function moveEnemy(enemy, WaypointsFolder)
      local enemyHumanoid = enemy:WaitForChild("Humanoid")
 
     for i = 1, #WaypointsFolder:GetChildren() do
+
+        if GAMEOVER then
+            return
+        end
+
         if enemy:GetAttribute("isRemoved") then
             return
         end
@@ -66,8 +79,13 @@ local function moveEnemy(enemy, WaypointsFolder)
         enemyHumanoid.MoveToFinished:Wait()
 
     end
-   
+    BaseHealth.Value -= ENEMY_DAMAGE
+    if BaseHealth.Value <= 0 then
+        GAMEOVER = true
+    end
     removeEnemy(enemy)
+    
+    
 end
 
 local function spawnEnemy(enemyType, WaypointsFolder)
@@ -102,9 +120,14 @@ end
 
 local function spawnWave(waveInfo)
 
+    CurrentWave.Value += 1
     local WaypointsFolder = Workspace:WaitForChild("Waypoints")
 
     for i = 1, waveInfo.Count do
+
+        if GAMEOVER then
+            return
+        end
 
         enemyCount += 1
         task.spawn(function()
@@ -126,7 +149,10 @@ local function spawnWave(waveInfo)
     end
 
     while enemyCount ~= 0 do
-        task.wait(0.1)
+        if GAMEOVER then
+            return
+        end
+        task.wait()
         --print(enemyCount)
     end
 
@@ -136,6 +162,9 @@ end
 
 for i,v in ipairs(waves) do
     
+    if GAMEOVER then
+        break
+    end
     
    -- print("wave "..i.." begins")
     spawnWave(waves[i])
@@ -145,5 +174,5 @@ for i,v in ipairs(waves) do
 
 end
 
---print("game is finished")
+print("game is finished")
 
