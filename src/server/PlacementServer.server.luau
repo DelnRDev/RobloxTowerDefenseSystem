@@ -13,7 +13,7 @@ local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
 local TowersFolder = Workspace:WaitForChild("Towers")
 local BuildArea = Workspace:WaitForChild("BuildArea")
 local PathFolder = Workspace:WaitForChild("Path")
-
+local EnemyFolder = Workspace:WaitForChild("Enemy")
 
 --local TOWER_DAMAGE = 10
 --local TOWER_COOLDOWN = 1
@@ -68,7 +68,7 @@ local function getClosestEnemy(tower)
     local closestEnemy = nil
     local closestDistance = nil
 
-    local EnemyFolder = Workspace:WaitForChild("Enemy")
+    
 
     
     for _, enemy in pairs(EnemyFolder:GetChildren()) do
@@ -116,13 +116,103 @@ local function getClosestEnemy(tower)
 
 end
 
+
+local function getTargetEnemy(tower)
+
+    local TargetMode = tower:GetAttribute("TargetMode") or "Closest"
+
+    local chosenEnemy = nil
+    local chosenValue = nil
+
+    for _, enemy in pairs(EnemyFolder:GetChildren()) do 
+
+        local towerPosition = tower:GetPivot().Position
+            
+        local enemyHumanoidRootPart = enemy and enemy:FindFirstChild("HumanoidRootPart")
+
+        if not enemyHumanoidRootPart then
+            continue
+        end
+
+        local displacementVector = enemyHumanoidRootPart.Position - towerPosition
+
+        if displacementVector.Magnitude <= tower:GetAttribute("Range") then
+        
+
+            if TargetMode == "Closest" then
+                
+                local towerPosition = tower:GetPivot().Position
+           
+                if chosenValue == nil then
+                    print("A")
+                    chosenValue = displacementVector.Magnitude
+                    chosenEnemy = enemy
+                else
+                    if displacementVector.Magnitude < chosenValue then
+                        print("B")
+                        chosenValue = displacementVector.Magnitude
+                        chosenEnemy = enemy
+                    end
+                end
+                
+
+            elseif TargetMode == "Strongest" then
+
+                local enemyHumanoid = enemy:FindFirstChild("Humanoid")
+
+                if not enemyHumanoid then
+                    continue
+                end
+
+                if chosenValue == nil then
+
+                    chosenValue = enemyHumanoid.Health
+                    chosenEnemy = enemy
+                else
+                    if enemyHumanoid.Health > chosenValue then
+                        chosenValue = enemyHumanoid.Health
+                        chosenEnemy = enemy
+                    end
+                end
+
+            elseif TargetMode == "Weakest" then
+
+                local enemyHumanoid = enemy:FindFirstChild("Humanoid")
+
+                if not enemyHumanoid then
+                    continue
+                end
+
+                if chosenValue == nil then
+
+                    chosenValue = enemyHumanoid.Health
+                    chosenEnemy = enemy
+                else
+                    if enemyHumanoid.Health < chosenValue then
+                        chosenValue = enemyHumanoid.Health
+                        chosenEnemy = enemy
+                    end
+                end
+
+            end
+        else
+            --print("outta range")
+        end
+
+    end
+    --print(chosenEnemy)
+    return chosenEnemy
+
+end
+
+
 local function startAttackEnemy(tower)
 
     task.spawn(function()
 
         while tower.Parent do
 
-            local closestEnemy = getClosestEnemy(tower)
+            local closestEnemy = getTargetEnemy(tower)
 
             local enemyHumanoid = closestEnemy and closestEnemy:FindFirstChild("Humanoid")
 
@@ -280,6 +370,7 @@ PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
     cloneTemplate:SetAttribute("Level", 1)
     cloneTemplate:SetAttribute("UpgradeCost", 300)
     cloneTemplate:SetAttribute("TotalValue", TOWER_PRICE)
+    cloneTemplate:SetAttribute("TargetMode", "Closest")
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)

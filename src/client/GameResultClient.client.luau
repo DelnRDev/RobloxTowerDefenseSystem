@@ -35,7 +35,7 @@ GameOver.Changed:Connect(function()
 end)
 
 Victory.Changed:Connect(function()
-    if Victor.Value == true then
+    if Victory.Value == true then
         showGameResultUI(true)
     end
 end)
