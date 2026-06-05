@@ -9,6 +9,7 @@ local templateTower = SharedFolder:WaitForChild("TowerTemplate")
 local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
 local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
+local SetTowerTargetMode = SharedFolder:WaitForChild("SetTowerTargetMode")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 local BuildArea = Workspace:WaitForChild("BuildArea")
@@ -120,13 +121,14 @@ end
 local function getTargetEnemy(tower)
 
     local TargetMode = tower:GetAttribute("TargetMode") or "Closest"
+    
+    local towerPosition = tower:GetPivot().Position
 
     local chosenEnemy = nil
     local chosenValue = nil
 
     for _, enemy in pairs(EnemyFolder:GetChildren()) do 
 
-        local towerPosition = tower:GetPivot().Position
             
         local enemyHumanoidRootPart = enemy and enemy:FindFirstChild("HumanoidRootPart")
 
@@ -141,15 +143,15 @@ local function getTargetEnemy(tower)
 
             if TargetMode == "Closest" then
                 
-                local towerPosition = tower:GetPivot().Position
+                --local towerPosition = tower:GetPivot().Position
            
                 if chosenValue == nil then
-                    print("A")
+                   -- print("A")
                     chosenValue = displacementVector.Magnitude
                     chosenEnemy = enemy
                 else
                     if displacementVector.Magnitude < chosenValue then
-                        print("B")
+                       -- print("B")
                         chosenValue = displacementVector.Magnitude
                         chosenEnemy = enemy
                     end
@@ -212,15 +214,15 @@ local function startAttackEnemy(tower)
 
         while tower.Parent do
 
-            local closestEnemy = getTargetEnemy(tower)
+            local targetEnemy = getTargetEnemy(tower)
 
-            local enemyHumanoid = closestEnemy and closestEnemy:FindFirstChild("Humanoid")
+            local enemyHumanoid = targetEnemy and targetEnemy:FindFirstChild("Humanoid")
 
             if enemyHumanoid and enemyHumanoid.Health > 0 then
                 
                 task.spawn(function()
                     local GunHead = tower:FindFirstChild("GunHead")
-                    local enemyHumanoidRootPart = closestEnemy:FindFirstChild("HumanoidRootPart")
+                    local enemyHumanoidRootPart = targetEnemy:FindFirstChild("HumanoidRootPart")
 
                     if not GunHead or not enemyHumanoidRootPart then 
                         return
@@ -231,9 +233,9 @@ local function startAttackEnemy(tower)
                 
                 if enemyHumanoid.Health - tower:GetAttribute("Damage") <= 0 then
 
-                    if not closestEnemy:GetAttribute("isRewarded") then
+                    if not targetEnemy:GetAttribute("isRewarded") then
 
-                        closestEnemy:SetAttribute("isRewarded", true)
+                        targetEnemy:SetAttribute("isRewarded", true)
 
                         local towerOwnerUserId = tower:GetAttribute("Owner")
                         local rewardOwner = Players:GetPlayerByUserId(towerOwnerUserId)
@@ -440,4 +442,26 @@ TowerSellRemote.OnServerInvoke = function(player, tower)
     end
 
     
+end
+
+SetTowerTargetMode.OnServerInvoke = function(player, tower, targetMode)
+
+     if not tower or not tower:IsDescendantOf(TowersFolder) then
+        return false
+    end
+
+    if tower:GetAttribute("Owner") ~= player.UserId then
+        print("its not yours")
+        return false
+    end
+
+    if targetMode == "Closest" or targetMode == "Strongest" or targetMode == "Weakest" then
+
+        tower:SetAttribute("TargetMode", targetMode)
+        return true
+    else
+        print(targetMode.." is not a valid mode")
+        return false
+    end
+
 end

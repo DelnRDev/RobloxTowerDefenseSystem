@@ -3,6 +3,8 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
+local Player = Players.LocalPlayer
+
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
@@ -12,10 +14,32 @@ local BuildAreaFolder = Workspace:WaitForChild("BuildArea")
 local placementEvent = SharedFolder:WaitForChild("PlacementEvent")
 local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
+local SetTowerTargetMode = SharedFolder:WaitForChild("SetTowerTargetMode")
 
-local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local TowerInfoGui = PlayerGui:WaitForChild("TowerInfoGui")
+local MainFrame =  TowerInfoGui:WaitForChild("MainFrame")
+
+local StatsFrame = MainFrame:WaitForChild("StatsFrame")
+local CooldownText = StatsFrame:WaitForChild("CooldownText")
+local DamageText = StatsFrame:WaitForChild("DamageText")
+local RangeText = StatsFrame:WaitForChild("RangeText")
+
+local TowerFrame = MainFrame:WaitForChild("TowerFrame")
+local ButtonsFrame = MainFrame:WaitForChild("ButtonsFrame")
+local SellButton = ButtonsFrame:WaitForChild("SellButton")
+local UpgradeButton = ButtonsFrame:WaitForChild("UpgradeButton")
+local TargetModeButton = TowerFrame:WaitForChild("TargetModeButton")
+
+
+local ViewportFrame = TowerFrame:WaitForChild("ViewportFrame")
+local TowerModeSelectFrame = MainFrame:WaitForChild("TargetModeSelectFrame")
+local ClosestButton = TowerModeSelectFrame:WaitForChild("ClosestButton")
+local StrongestButton = TowerModeSelectFrame:WaitForChild("StrongestButton")
+local WeakestButton = TowerModeSelectFrame:WaitForChild("WeakestButton")
+
 local Mouse = Player:GetMouse()
-
 
 local isPreviewing = false
 local previewTower = nil
@@ -59,6 +83,40 @@ local function inBuildingArea()
     else
         return false
     end
+
+end
+
+local function updateTargetModeMenu()
+
+    if towerSelected == nil then
+        return
+    end
+
+    local currentTargetMode = towerSelected:GetAttribute("TargetMode")
+
+     ClosestButton.Text = "Closest"
+     StrongestButton.Text = "Strongest"
+     WeakestButton.Text = "Weakest"
+
+
+    if currentTargetMode == "Closest" then
+
+        ClosestButton.Text = "Closest <"
+
+    elseif currentTargetMode == "Strongest" then
+
+           StrongestButton.Text = "Strongest <"
+
+    elseif currentTargetMode == "Weakest" then
+
+         WeakestButton.Text = "Weakest <"
+
+    end
+
+    
+ 
+   
+
 
 end
 
@@ -268,7 +326,7 @@ end
 local SELL_PENALTY_RATE = 0.5
 
 local function updateTowerInfoGui(tower)
-
+    --[[
     local PlayerGui = Player:FindFirstChild("PlayerGui")
     local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
     local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
@@ -280,9 +338,10 @@ local function updateTowerInfoGui(tower)
     local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
     local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
     local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
-
+    local TargetModeButton = TowerFrame and TowerFrame:FindFirstChild("TargetModeButton")
+    ]]
     --print(tower:GetAttribute("Cooldown"), tower:GetAttribute("Damage"), tower:GetAttribute("Range"),tostring(tower:GetAttribute("UpgradeCost")))
-
+    
     if CooldownText then
         CooldownText.Text = "Cooldown: "..tostring(tower:GetAttribute("Cooldown"))
     end
@@ -308,7 +367,29 @@ local function updateTowerInfoGui(tower)
 
     end
 
+    if TargetModeButton then
+        TargetModeButton.Text = "Target mode: "..tower:GetAttribute("TargetMode")
+    end
+
 end
+
+
+local function showTargetModeSelectFrame()
+    --[[
+    local PlayerGui = Player:FindFirstChild("PlayerGui")
+    local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
+    local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
+    local TowerModeSelectFrame = MainFrame and MainFrame:FindFirstChild("TowerModeSelectFrame")
+    ]]
+    TowerModeSelectFrame.Visible = true
+
+
+    
+end
+
+
+
+
 
 local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 
@@ -349,7 +430,7 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 end
 
 local function showTowerInfoGui(tower)
-
+    --[[
     local PlayerGui = Player:FindFirstChild("PlayerGui")
     local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
     local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
@@ -359,20 +440,21 @@ local function showTowerInfoGui(tower)
     local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
     local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
     local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-
+    ]]
     --local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
 
     --local TowerFrame = script.Parent.MainFrame.TowerFrame
 
-
+    TowerModeSelectFrame.Visible = false
     ShowTowerInViewportFrame(tower,ViewportFrame)
     updateTowerInfoGui(tower)
+    --updateTargetModeMenu()
     MainFrame.Visible = true
     
 end
 
 UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
-
+    --[[
     local PlayerGui = Player:FindFirstChild("PlayerGui")
     local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
     local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
@@ -384,27 +466,27 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
     local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
     local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
     local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
-
+    ]]
     if gameProccessed then
 
         return
     end
     
     if inputObj.KeyCode == Enum.KeyCode.P then
-
+        --[[
         local PlayerGui = Player:FindFirstChild("PlayerGui")
         local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
         local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-
+        ]]
 
         RemoveRangeCircle()
         removeTowerHighlight(towerSelected)
 
         towerSelected = nil
 
-        if MainFrame then
-            MainFrame.Visible = false
-        end
+        
+        MainFrame.Visible = false
+        TowerModeSelectFrame.Visible = false
 
         if isPreviewing then
             isPreviewing = false
@@ -501,21 +583,19 @@ Mouse.Button1Down:Connect(function()
         highlightSelectedTower(towerSelected)
         --code here what happens after selected
     else
+        --[[
         local PlayerGui = Player:FindFirstChild("PlayerGui")
         local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
         local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-
+        ]]
         RemoveRangeCircle()
         removeTowerHighlight(towerSelected)
-
+        
         towerSelected = nil
 
-        
-        
-        if MainFrame then
-            MainFrame.Visible = false
-        end
 
+        MainFrame.Visible = false
+        
         if isPreviewing and previewTower then
             
             if canPlaceTower() then
@@ -584,4 +664,54 @@ Mouse.Move:Connect(function()
         
 
     end
+end)
+
+
+
+WeakestButton.MouseButton1Click:Connect(function()
+
+    if towerSelected == nil then
+        return
+    end
+
+    if SetTowerTargetMode:InvokeServer(towerSelected, "Weakest") then
+
+        updateTowerInfoGui(towerSelected)
+        updateTargetModeMenu()
+        TowerModeSelectFrame.Visible = false
+    end
+
+end)
+
+StrongestButton.MouseButton1Click:Connect(function()
+
+     if towerSelected == nil then
+        return
+    end
+
+    if SetTowerTargetMode:InvokeServer(towerSelected, "Strongest") then
+
+        updateTowerInfoGui(towerSelected)
+        updateTargetModeMenu()
+        TowerModeSelectFrame.Visible = false
+    end
+end)
+
+ClosestButton.MouseButton1Click:Connect(function()
+
+     if towerSelected == nil then
+        return
+    end
+
+    if SetTowerTargetMode:InvokeServer(towerSelected, "Closest") then
+        updateTowerInfoGui(towerSelected)
+        updateTargetModeMenu()
+        TowerModeSelectFrame.Visible = false
+    end
+end)
+
+TargetModeButton.MouseButton1Click:Connect(function()
+
+    TowerModeSelectFrame.Visible = true
+    updateTargetModeMenu()
 end)
