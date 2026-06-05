@@ -4,12 +4,15 @@ local Players = game:GetService("Players")
 
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
-local templateTower = SharedFolder:WaitForChild("TowerTemplate")
+local TowerModelsFolder = SharedFolder:WaitForChild("TowerModels")
+local RemotesFolder = SharedFolder:WaitForChild("Remotes")
 
-local PlacementEvent = SharedFolder:WaitForChild("PlacementEvent")
-local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
-local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
-local SetTowerTargetMode = SharedFolder:WaitForChild("SetTowerTargetMode")
+local templateTower = TowerModelsFolder:WaitForChild("BasicTower")
+
+local PlacementEvent = RemotesFolder:WaitForChild("PlacementEvent")
+local TowerUpgradeEvent = RemotesFolder:WaitForChild("TowerUpgradeEvent")
+local TowerSellRemote = RemotesFolder:WaitForChild("TowerSellRemote")
+local SetTowerTargetMode = RemotesFolder:WaitForChild("SetTowerTargetMode")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 local BuildArea = Workspace:WaitForChild("BuildArea")

@@ -11,9 +11,13 @@ local EnemyFolder = Workspace:WaitForChild("Enemy")
 
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
-local EnemyConfig = require(SharedFolder:WaitForChild("EnemyConfig"))
+local ConfigurationsFolder = SharedFolder:WaitForChild("Configurations")
 
-local EnemyTemplate = SharedFolder:WaitForChild("EnemyTemplate")
+local EnemyConfig = require(ConfigurationsFolder:WaitForChild("EnemyConfig"))
+
+local EnemyModelsFolder = SharedFolder:WaitForChild("EnemyModels")
+
+local EnemyTemplate = EnemyModelsFolder:WaitForChild("EnemyTemplate")
 
 local ENEMY_DAMAGE = 20
 

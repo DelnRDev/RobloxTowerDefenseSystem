@@ -6,15 +6,19 @@ local UserInputService = game:GetService("UserInputService")
 local Player = Players.LocalPlayer
 
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
+local RemotesFolder = SharedFolder:WaitForChild("Remotes")
+local TowerModelFolder = SharedFolder:WaitForChild("TowerModels")
+
+local TowerTemplate = TowerModelFolder:WaitForChild("BasicTower")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 local PathFolder = Workspace:WaitForChild("Path")
 local BuildAreaFolder = Workspace:WaitForChild("BuildArea")
 
-local placementEvent = SharedFolder:WaitForChild("PlacementEvent")
-local TowerUpgradeEvent = SharedFolder:WaitForChild("TowerUpgradeEvent")
-local TowerSellRemote = SharedFolder:WaitForChild("TowerSellRemote")
-local SetTowerTargetMode = SharedFolder:WaitForChild("SetTowerTargetMode")
+local placementEvent = RemotesFolder:WaitForChild("PlacementEvent")
+local TowerUpgradeEvent = RemotesFolder:WaitForChild("TowerUpgradeEvent")
+local TowerSellRemote = RemotesFolder:WaitForChild("TowerSellRemote")
+local SetTowerTargetMode = RemotesFolder:WaitForChild("SetTowerTargetMode")
 
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
@@ -294,7 +298,6 @@ end
 
 local function createPreviewTower()
     --print("created")
-    local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
 
     local TowerClone = TowerTemplate:Clone()
 
