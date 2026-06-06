@@ -6,10 +6,14 @@ local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 
 local TowerModelsFolder = SharedFolder:WaitForChild("TowerModels")
 local RemotesFolder = SharedFolder:WaitForChild("Remotes")
+local ConfigurationsFolder = SharedFolder:WaitForChild("Configurations")
 
-local templateTower = TowerModelsFolder:WaitForChild("BasicTower")
+local TowerConfig = require(ConfigurationsFolder:WaitForChild("TowerConfig"))
+
+--local templateTower = TowerModelsFolder:WaitForChild("BasicTower")
 
 local PlacementEvent = RemotesFolder:WaitForChild("PlacementEvent")
+local PlacementEvent2 = RemotesFolder:WaitForChild("PlacementEvent2")
 local TowerUpgradeEvent = RemotesFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = RemotesFolder:WaitForChild("TowerSellRemote")
 local SetTowerTargetMode = RemotesFolder:WaitForChild("SetTowerTargetMode")
@@ -267,7 +271,7 @@ local function startAttackEnemy(tower)
 
 end
 
-local function isOverlappingWithTower(placementCFrame)
+local function isOverlappingWithTower(placementCFrame, towerModel)
 
     local overlapParams = OverlapParams.new()
     overlapParams.FilterDescendantsInstances = {TowersFolder}
@@ -275,7 +279,7 @@ local function isOverlappingWithTower(placementCFrame)
 
      local touching = Workspace:GetPartBoundsInBox(
             placementCFrame,
-            templateTower:GetExtentsSize(),
+            towerModel:GetExtentsSize(),
             overlapParams
     )
 
@@ -287,7 +291,7 @@ local function isOverlappingWithTower(placementCFrame)
 
 end
 
-local function isInBuildArea(placementCFrame)
+local function isInBuildArea(placementCFrame, towerModel)
 
     local overlapParams = OverlapParams.new()
     overlapParams.FilterDescendantsInstances = {BuildArea}
@@ -295,7 +299,7 @@ local function isInBuildArea(placementCFrame)
 
     local touching = Workspace:GetPartBoundsInBox(
         placementCFrame,
-        templateTower:GetExtentsSize(),
+        towerModel:GetExtentsSize(),
         overlapParams
     )
 
@@ -307,7 +311,7 @@ local function isInBuildArea(placementCFrame)
 
 end
 
-local function inPath(placementCFrame)
+local function inPath(placementCFrame, towerModel)
 
     local overlapParams = OverlapParams.new()
     overlapParams.FilterDescendantsInstances = {PathFolder}
@@ -315,7 +319,7 @@ local function inPath(placementCFrame)
 
     local touching = Workspace:GetPartBoundsInBox(
         placementCFrame,
-        templateTower:GetExtentsSize(),
+        towerModel:GetExtentsSize(),
         overlapParams
     )
 
@@ -468,3 +472,67 @@ SetTowerTargetMode.OnServerInvoke = function(player, tower, targetMode)
     end
 
 end
+
+PlacementEvent2.OnServerEvent:Connect(function(player, placementCFrame, towerName)
+
+    --print(towerName)
+    local desireTower = TowerModelsFolder:FindFirstChild(towerName)
+
+    if not desireTower then
+        return
+    end
+
+    if isOverlappingWithTower(placementCFrame, desireTower) then
+        print("overlapping")
+        return
+    end
+
+    if inPath(placementCFrame, desireTower) then
+        print("is in path")
+        return
+    end
+
+    if not isInBuildArea(placementCFrame, desireTower) then
+        print("is not in build area")
+        return
+    end
+    --[[
+    if isOverlappingWithTower(placementCFrame) or not isInBuildArea(placementCFrame) or inPath(placementCFrame) then
+        return 
+    end
+    ]]
+    
+
+    local leaderstats = player:FindFirstChild("leaderstats")
+    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
+
+    if not leaderstats or not playerMoney then
+        print(player.Name.." leaderstats not found or player money not found")
+        return
+    end
+    
+    if playerMoney.Value < TowerConfig[towerName].Cost then
+        print(player.Name.." does not have enough money")
+        return
+    end
+
+    --print(playerMoney.Value)
+
+    playerMoney.Value -= TowerConfig[towerName].Cost
+    
+    local cloneTemplate = desireTower:Clone()
+    cloneTemplate:PivotTo(placementCFrame)
+    cloneTemplate:SetAttribute("Owner", player.UserId)
+    cloneTemplate:SetAttribute("Cooldown", TowerConfig[towerName].Cooldown)
+    cloneTemplate:SetAttribute("Damage", TowerConfig[towerName].Damage)
+    cloneTemplate:SetAttribute("Range", TowerConfig[towerName].Range)
+    cloneTemplate:SetAttribute("Level", 1)
+    cloneTemplate:SetAttribute("UpgradeCost", TowerConfig[towerName].UpgradeCost)
+    cloneTemplate:SetAttribute("TotalValue", TowerConfig[towerName].Cost)
+    cloneTemplate:SetAttribute("TargetMode", "Closest")
+    cloneTemplate.Parent = TowersFolder
+
+    startAttackEnemy(cloneTemplate)
+
+
+end)

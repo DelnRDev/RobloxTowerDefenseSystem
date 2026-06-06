@@ -7,15 +7,19 @@ local Player = Players.LocalPlayer
 
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 local RemotesFolder = SharedFolder:WaitForChild("Remotes")
-local TowerModelFolder = SharedFolder:WaitForChild("TowerModels")
+local TowerModelsFolder = SharedFolder:WaitForChild("TowerModels")
+local ConfigurationsFolder = SharedFolder:WaitForChild("Configurations")
 
-local TowerTemplate = TowerModelFolder:WaitForChild("BasicTower")
+local TowerConfig = require(ConfigurationsFolder:WaitForChild("TowerConfig"))
+
+--local TowerTemplate = TowerModelsFolder:WaitForChild("BasicTower")
 
 local TowersFolder = Workspace:WaitForChild("Towers")
 local PathFolder = Workspace:WaitForChild("Path")
 local BuildAreaFolder = Workspace:WaitForChild("BuildArea")
 
 local placementEvent = RemotesFolder:WaitForChild("PlacementEvent")
+local placementEvent2 = RemotesFolder:WaitForChild("PlacementEvent2")
 local TowerUpgradeEvent = RemotesFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = RemotesFolder:WaitForChild("TowerSellRemote")
 local SetTowerTargetMode = RemotesFolder:WaitForChild("SetTowerTargetMode")
@@ -31,6 +35,7 @@ local DamageText = StatsFrame:WaitForChild("DamageText")
 local RangeText = StatsFrame:WaitForChild("RangeText")
 
 local TowerFrame = MainFrame:WaitForChild("TowerFrame")
+local TowerNameText = TowerFrame:WaitForChild("TowerNameText")
 local ButtonsFrame = MainFrame:WaitForChild("ButtonsFrame")
 local SellButton = ButtonsFrame:WaitForChild("SellButton")
 local UpgradeButton = ButtonsFrame:WaitForChild("UpgradeButton")
@@ -42,6 +47,30 @@ local TowerModeSelectFrame = MainFrame:WaitForChild("TargetModeSelectFrame")
 local ClosestButton = TowerModeSelectFrame:WaitForChild("ClosestButton")
 local StrongestButton = TowerModeSelectFrame:WaitForChild("StrongestButton")
 local WeakestButton = TowerModeSelectFrame:WaitForChild("WeakestButton")
+
+local TowerSelectionGui = PlayerGui:WaitForChild("TowerSelectionGui")
+local TowerSelectionMainFrame = TowerSelectionGui:WaitForChild("MainFrame")
+local TowerButtonTemplate = TowerSelectionMainFrame:WaitForChild("ButtonFrameTemplate")
+--[[
+local BasicTowerButton = TowerButtonTemplate:Clone()
+BasicTowerButton.Name = "BasicTowerButton"
+BasicTowerButton.Visible = true
+BasicTowerButton
+BasicTowerButton.Parent = TowerSelectionMainFrame
+
+local SniperTowerButton = TowerButtonTemplate:Clone()
+SniperTowerButton.Name = "SniperTowerButton"
+SniperTowerButton.Visible = true
+SniperTowerButton.Parent = TowerSelectionMainFrame
+
+local FastTowerButton = TowerButtonTemplate:Clone()
+FastTowerButton.Name = "SniperTowerButton"
+FastTowerButton.Visible = true
+FastTowerButton.Parent = TowerSelectionMainFrame
+]]
+
+
+
 
 local Mouse = Player:GetMouse()
 
@@ -296,10 +325,10 @@ end
 
 
 
-local function createPreviewTower()
+local function createPreviewTower(towerName)
     --print("created")
 
-    local TowerClone = TowerTemplate:Clone()
+    local TowerClone = TowerModelsFolder:WaitForChild(towerName):Clone()
 
     for _, obj in pairs(TowerClone:GetDescendants()) do
         --print(obj.ClassName)
@@ -345,34 +374,16 @@ local function updateTowerInfoGui(tower)
     ]]
     --print(tower:GetAttribute("Cooldown"), tower:GetAttribute("Damage"), tower:GetAttribute("Range"),tostring(tower:GetAttribute("UpgradeCost")))
     
-    if CooldownText then
+   
         CooldownText.Text = "Cooldown: "..tostring(tower:GetAttribute("Cooldown"))
-    end
-
-    if DamageText then
         DamageText.Text = "Damage: "..tostring(tower:GetAttribute("Damage"))
-    end
-
-    if RangeText then
         RangeText.Text = "Range: "..tostring(tower:GetAttribute("Range"))
-    end
-
-    if UpgradeButton then
-
         UpgradeButton.BackgroundColor3 = Color3.fromRGB(24,255,32)
-        
         UpgradeButton.Text = "Upgrade: $"..tostring(tower:GetAttribute("UpgradeCost"))
-    end
-
-    if SellButton then
-        --print("Ye sellbuutton")
-       SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_PENALTY_RATE))
-
-    end
-
-    if TargetModeButton then
+        SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_PENALTY_RATE))
         TargetModeButton.Text = "Target mode: "..tower:GetAttribute("TargetMode")
-    end
+        TowerNameText.Text = tower.Name
+   
 
 end
 
@@ -474,13 +485,9 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
 
         return
     end
-    
+    --[[
     if inputObj.KeyCode == Enum.KeyCode.P then
-        --[[
-        local PlayerGui = Player:FindFirstChild("PlayerGui")
-        local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-        local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-        ]]
+       
 
         RemoveRangeCircle()
         removeTowerHighlight(towerSelected)
@@ -506,7 +513,7 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
         end
        
     end
-
+    ]]
     if inputObj.KeyCode == Enum.KeyCode.U and towerSelected ~= nil then
         
         local upgradeResult = TowerUpgradeEvent:InvokeServer(towerSelected)
@@ -602,7 +609,7 @@ Mouse.Button1Down:Connect(function()
         if isPreviewing and previewTower then
             
             if canPlaceTower() then
-                placementEvent:FireServer(previewTower:GetPivot())
+                placementEvent2:FireServer(previewTower:GetPivot(), previewTower.Name)
                 isPreviewing = false
                 previewTower:Destroy()
                 previewTower = nil
@@ -718,3 +725,82 @@ TargetModeButton.MouseButton1Click:Connect(function()
     TowerModeSelectFrame.Visible = true
     updateTargetModeMenu()
 end)
+
+
+local towerCount = 0
+
+local function createTowerButton(TowerName)
+
+    local TowerButtonFrame = TowerButtonTemplate:Clone()
+    TowerButtonFrame.LayoutOrder = towerCount
+    TowerButtonFrame.Name = TowerName.."TowerButton"
+    TowerButtonFrame.Visible = true
+    TowerButtonFrame.Parent = TowerSelectionMainFrame
+    local TowerButton = TowerButtonFrame:WaitForChild("Button")
+    local TowerViewportFrame = TowerButtonFrame:WaitForChild("ViewportFrame")
+
+    local cloneTowerModel = TowerModelsFolder:WaitForChild(TowerName):Clone()
+    cloneTowerModel:PivotTo(CFrame.new(Vector3.new(0,0,0)))
+    cloneTowerModel.Parent = TowerViewportFrame
+
+    
+    local towerSize = cloneTowerModel:GetExtentsSize()
+
+     local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(-3, 3, 2)
+
+    -- forming the basis for the rotational matrix
+    local fHat = -cameraPositionVector.Unit
+    local rHat = fHat:Cross(Vector3.yAxis).Unit
+    local uHat = rHat:Cross(fHat).Unit
+
+    -- translation * rotation , i.e rotation -> translation
+
+    local CompositionOfTransform = CFrame.new(cameraPositionVector) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat) 
+
+    local finalMatrix = CFrame.lookAt(cameraPositionVector, Vector3.new(0,0,0))
+ 
+
+    local camera = Instance.new("Camera")
+    camera.CFrame = CompositionOfTransform
+    camera.Parent = TowerViewportFrame
+
+    TowerViewportFrame.CurrentCamera = camera
+
+    TowerButton.MouseButton1Click:Connect(function()
+        
+    
+
+        RemoveRangeCircle()
+        removeTowerHighlight(towerSelected)
+
+        towerSelected = nil
+
+        
+        MainFrame.Visible = false
+        TowerModeSelectFrame.Visible = false
+
+        if isPreviewing then
+           -- isPreviewing = false
+            previewTower:Destroy()
+            previewTower = createPreviewTower(TowerName)
+            --previewTower = nil
+        else
+            isPreviewing = true
+            previewTower = createPreviewTower(TowerName)
+            if canPlaceTower() then
+                setPreviewColor(BrickColor.new("Bright green"))
+            else
+                setPreviewColor(BrickColor.new("Bright red"))
+            end
+        end
+       
+
+    end)
+
+end
+
+for TowerName, Properties in pairs(TowerConfig) do    
+    
+    createTowerButton(TowerName)
+    towerCount -= 1
+end
