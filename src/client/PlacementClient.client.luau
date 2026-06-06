@@ -12,13 +12,10 @@ local ConfigurationsFolder = SharedFolder:WaitForChild("Configurations")
 
 local TowerConfig = require(ConfigurationsFolder:WaitForChild("TowerConfig"))
 
---local TowerTemplate = TowerModelsFolder:WaitForChild("BasicTower")
-
 local TowersFolder = Workspace:WaitForChild("Towers")
 local PathFolder = Workspace:WaitForChild("Path")
 local BuildAreaFolder = Workspace:WaitForChild("BuildArea")
 
-local placementEvent = RemotesFolder:WaitForChild("PlacementEvent")
 local placementEvent2 = RemotesFolder:WaitForChild("PlacementEvent2")
 local TowerUpgradeEvent = RemotesFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = RemotesFolder:WaitForChild("TowerSellRemote")
@@ -51,26 +48,6 @@ local WeakestButton = TowerModeSelectFrame:WaitForChild("WeakestButton")
 local TowerSelectionGui = PlayerGui:WaitForChild("TowerSelectionGui")
 local TowerSelectionMainFrame = TowerSelectionGui:WaitForChild("MainFrame")
 local TowerButtonTemplate = TowerSelectionMainFrame:WaitForChild("ButtonFrameTemplate")
---[[
-local BasicTowerButton = TowerButtonTemplate:Clone()
-BasicTowerButton.Name = "BasicTowerButton"
-BasicTowerButton.Visible = true
-BasicTowerButton
-BasicTowerButton.Parent = TowerSelectionMainFrame
-
-local SniperTowerButton = TowerButtonTemplate:Clone()
-SniperTowerButton.Name = "SniperTowerButton"
-SniperTowerButton.Visible = true
-SniperTowerButton.Parent = TowerSelectionMainFrame
-
-local FastTowerButton = TowerButtonTemplate:Clone()
-FastTowerButton.Name = "SniperTowerButton"
-FastTowerButton.Visible = true
-FastTowerButton.Parent = TowerSelectionMainFrame
-]]
-
-
-
 
 local Mouse = Player:GetMouse()
 
@@ -358,22 +335,6 @@ end
 local SELL_PENALTY_RATE = 0.5
 
 local function updateTowerInfoGui(tower)
-    --[[
-    local PlayerGui = Player:FindFirstChild("PlayerGui")
-    local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-    local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-    local StatsFrame = MainFrame and MainFrame:FindFirstChild("StatsFrame")
-    local TowerFrame = MainFrame and MainFrame:FindFirstChild("TowerFrame")
-    local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
-    local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
-    local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-    local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
-    local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
-    local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
-    local TargetModeButton = TowerFrame and TowerFrame:FindFirstChild("TargetModeButton")
-    ]]
-    --print(tower:GetAttribute("Cooldown"), tower:GetAttribute("Damage"), tower:GetAttribute("Range"),tostring(tower:GetAttribute("UpgradeCost")))
-    
    
         CooldownText.Text = "Cooldown: "..tostring(tower:GetAttribute("Cooldown"))
         DamageText.Text = "Damage: "..tostring(tower:GetAttribute("Damage"))
@@ -382,28 +343,10 @@ local function updateTowerInfoGui(tower)
         UpgradeButton.Text = "Upgrade: $"..tostring(tower:GetAttribute("UpgradeCost"))
         SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_PENALTY_RATE))
         TargetModeButton.Text = "Target mode: "..tower:GetAttribute("TargetMode")
-        TowerNameText.Text = tower.Name
+        TowerNameText.Text = tower.Name:gsub("Tower", " Tower")
    
 
 end
-
-
-local function showTargetModeSelectFrame()
-    --[[
-    local PlayerGui = Player:FindFirstChild("PlayerGui")
-    local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-    local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-    local TowerModeSelectFrame = MainFrame and MainFrame:FindFirstChild("TowerModeSelectFrame")
-    ]]
-    TowerModeSelectFrame.Visible = true
-
-
-    
-end
-
-
-
-
 
 local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 
@@ -417,7 +360,7 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 
     local towerSize = cloneTower:GetExtentsSize()
 
-    local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(-3, 3, 2)
+    local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(7, 3, -10)
 
     -- forming the basis for the rotational matrix
     local fHat = -cameraPositionVector.Unit
@@ -444,21 +387,7 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
 end
 
 local function showTowerInfoGui(tower)
-    --[[
-    local PlayerGui = Player:FindFirstChild("PlayerGui")
-    local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-    local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-    local StatsFrame = MainFrame and MainFrame:FindFirstChild("StatsFrame")
-    local TowerFrame = MainFrame and MainFrame:FindFirstChild("TowerFrame")
-    local ViewportFrame = TowerFrame and TowerFrame:FindFirstChild("ViewportFrame")
-    local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
-    local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
-    local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-    ]]
-    --local TowerTemplate = SharedFolder:WaitForChild("TowerTemplate")
-
-    --local TowerFrame = script.Parent.MainFrame.TowerFrame
-
+   
     TowerModeSelectFrame.Visible = false
     ShowTowerInViewportFrame(tower,ViewportFrame)
     updateTowerInfoGui(tower)
@@ -468,52 +397,12 @@ local function showTowerInfoGui(tower)
 end
 
 UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
-    --[[
-    local PlayerGui = Player:FindFirstChild("PlayerGui")
-    local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-    local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-    local StatsFrame = MainFrame and MainFrame:FindFirstChild("StatsFrame")
-    local TowerFrame = MainFrame and MainFrame:FindFirstChild("TowerFrame")
-    local CooldownText = StatsFrame and StatsFrame:FindFirstChild("CoolDownText")
-    local DamageText = StatsFrame and StatsFrame:FindFirstChild("DamageText")
-    local RangeText = StatsFrame and StatsFrame:FindFirstChild("RangeText")
-    local ButtonsFrame = MainFrame and MainFrame:FindFirstChild("ButtonsFrame")
-    local SellButton = ButtonsFrame and ButtonsFrame:FindFirstChild("SellButton")
-    local UpgradeButton = ButtonsFrame and ButtonsFrame:FindFirstChild("UpgradeButton")
-    ]]
+   
     if gameProccessed then
 
         return
     end
-    --[[
-    if inputObj.KeyCode == Enum.KeyCode.P then
-       
-
-        RemoveRangeCircle()
-        removeTowerHighlight(towerSelected)
-
-        towerSelected = nil
-
-        
-        MainFrame.Visible = false
-        TowerModeSelectFrame.Visible = false
-
-        if isPreviewing then
-            isPreviewing = false
-            previewTower:Destroy()
-            previewTower = nil
-        else
-            isPreviewing = true
-            previewTower = createPreviewTower()
-            if canPlaceTower() then
-                setPreviewColor(BrickColor.new("Bright green"))
-            else
-                setPreviewColor(BrickColor.new("Bright red"))
-            end
-        end
-       
-    end
-    ]]
+   
     if inputObj.KeyCode == Enum.KeyCode.U and towerSelected ~= nil then
         
         local upgradeResult = TowerUpgradeEvent:InvokeServer(towerSelected)
@@ -534,7 +423,7 @@ UserInputService.InputBegan:Connect(function(inputObj, gameProccessed)
             end
             UpgradeButton.BackgroundColor3 = Color3.fromRGB(24,255,32)
             UpgradeButton.Text = "Upgrade: $"..tostring(towerSelected:GetAttribute("UpgradeCost"))
-            --print(UpgradeButton.BackgroundColor3)
+           
         elseif upgradeResult == "UPGRADED" then
             updateTowerInfoGui(towerSelected)
             RemoveRangeCircle()
@@ -593,11 +482,7 @@ Mouse.Button1Down:Connect(function()
         highlightSelectedTower(towerSelected)
         --code here what happens after selected
     else
-        --[[
-        local PlayerGui = Player:FindFirstChild("PlayerGui")
-        local TowerInfoGui = PlayerGui and PlayerGui:FindFirstChild("TowerInfoGui")
-        local MainFrame = TowerInfoGui and TowerInfoGui:FindFirstChild("MainFrame")
-        ]]
+       
         RemoveRangeCircle()
         removeTowerHighlight(towerSelected)
         
@@ -618,7 +503,7 @@ Mouse.Button1Down:Connect(function()
             end
             
           
-            --placeTower(previewTower)
+           
         
 
         end
@@ -729,13 +614,21 @@ end)
 
 local towerCount = 0
 
-local function createTowerButton(TowerName)
+local function createTowerButton(TowerName, TowerProperties)
 
     local TowerButtonFrame = TowerButtonTemplate:Clone()
     TowerButtonFrame.LayoutOrder = towerCount
     TowerButtonFrame.Name = TowerName.."TowerButton"
     TowerButtonFrame.Visible = true
     TowerButtonFrame.Parent = TowerSelectionMainFrame
+
+    local TowerNameText = TowerButtonFrame:WaitForChild("TowerName")
+    local TowerCostText = TowerButtonFrame:WaitForChild("TowerCost")
+
+    --print(TowerName:gsub("Tower$", " Tower"))
+    TowerNameText.Text = TowerName:gsub("Tower$", " Tower")
+    TowerCostText.Text = "$"..tostring(TowerProperties.Cost)
+
     local TowerButton = TowerButtonFrame:WaitForChild("Button")
     local TowerViewportFrame = TowerButtonFrame:WaitForChild("ViewportFrame")
 
@@ -746,7 +639,7 @@ local function createTowerButton(TowerName)
     
     local towerSize = cloneTowerModel:GetExtentsSize()
 
-     local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(-3, 3, 2)
+     local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(7, 3, -10)
 
     -- forming the basis for the rotational matrix
     local fHat = -cameraPositionVector.Unit
@@ -801,6 +694,6 @@ end
 
 for TowerName, Properties in pairs(TowerConfig) do    
     
-    createTowerButton(TowerName)
+    createTowerButton(TowerName, Properties)
     towerCount -= 1
 end

@@ -10,9 +10,7 @@ local ConfigurationsFolder = SharedFolder:WaitForChild("Configurations")
 
 local TowerConfig = require(ConfigurationsFolder:WaitForChild("TowerConfig"))
 
---local templateTower = TowerModelsFolder:WaitForChild("BasicTower")
 
-local PlacementEvent = RemotesFolder:WaitForChild("PlacementEvent")
 local PlacementEvent2 = RemotesFolder:WaitForChild("PlacementEvent2")
 local TowerUpgradeEvent = RemotesFolder:WaitForChild("TowerUpgradeEvent")
 local TowerSellRemote = RemotesFolder:WaitForChild("TowerSellRemote")
@@ -23,11 +21,6 @@ local BuildArea = Workspace:WaitForChild("BuildArea")
 local PathFolder = Workspace:WaitForChild("Path")
 local EnemyFolder = Workspace:WaitForChild("Enemy")
 
---local TOWER_DAMAGE = 10
---local TOWER_COOLDOWN = 1
---local TOWER_RANGE = 30
-
-local TOWER_PRICE = 200
 
 local KILL_REWARD = 100
 
@@ -57,70 +50,6 @@ local function showBullet(origin, targetPosition)
     task.wait(1)
 
     part:Destroy()
-
-end
-
-local function getClosestEnemy(tower)
-   --[[ using gun head to determine tower range
-    local GunHead = tower:FindFirstChild("GunHead")
-    if not GunHead then
-        return
-    end
-    ]]
-    local towerPosition = tower:GetPivot().Position
-
-
-    --get closest enemy
-    -- take damage
-
-    local closestEnemy = nil
-    local closestDistance = nil
-
-    
-
-    
-    for _, enemy in pairs(EnemyFolder:GetChildren()) do
-        
-        local enemyHumanoidRootPart = enemy:FindFirstChild("HumanoidRootPart")
-
-        if not enemyHumanoidRootPart then
-            continue
-        end
-
-        local enemyPosition = enemyHumanoidRootPart.Position
-
-        local enemyDistance = (enemyPosition - towerPosition).Magnitude
-        
-        --print(enemy:GetPivot())
-
-       
-        if enemyDistance <= tower:GetAttribute("Range") then 
-           -- print(enemyDistance)
-            if closestDistance == nil then
-
-                
-                closestDistance = enemyDistance
-                closestEnemy = enemy
-                
-
-            else
-            
-                if enemyDistance < closestDistance then
-
-                    closestDistance = enemyDistance
-                    closestEnemy = enemy
-
-                end
-
-            end
-
-        end
-
-  
-
-    end
-
-    return closestEnemy
 
 end
 
@@ -330,61 +259,6 @@ local function inPath(placementCFrame, towerModel)
     end
 
 end
-
-PlacementEvent.OnServerEvent:Connect(function(player, placementCFrame)
-
-   --check if the position is a valid position
-    if isOverlappingWithTower(placementCFrame) then
-        print("overlapping")
-        return
-    end
-
-    if inPath(placementCFrame) then
-        print("is in path")
-        return
-    end
-
-    if not isInBuildArea(placementCFrame) then
-        print("is not in build area")
-        return
-    end
-    --[[
-    if isOverlappingWithTower(placementCFrame) or not isInBuildArea(placementCFrame) or inPath(placementCFrame) then
-        return 
-    end
-    ]]
-    local leaderstats = player:FindFirstChild("leaderstats")
-    local playerMoney = leaderstats and leaderstats:FindFirstChild("Money")
-
-    if not leaderstats or not playerMoney then
-        print(player.Name.." leaderstats not found or player money not found")
-        return
-    end
-    
-    if playerMoney.Value < TOWER_PRICE then
-        print(player.Name.." does not have enough money")
-        return
-    end
-
-    --print(playerMoney.Value)
-
-    playerMoney.Value -= TOWER_PRICE
-
-    local cloneTemplate = templateTower:Clone()
-    cloneTemplate:PivotTo(placementCFrame)
-    cloneTemplate:SetAttribute("Owner", player.UserId)
-    cloneTemplate:SetAttribute("Cooldown", 1)
-    cloneTemplate:SetAttribute("Damage", 10)
-    cloneTemplate:SetAttribute("Range", 15)
-    cloneTemplate:SetAttribute("Level", 1)
-    cloneTemplate:SetAttribute("UpgradeCost", 300)
-    cloneTemplate:SetAttribute("TotalValue", TOWER_PRICE)
-    cloneTemplate:SetAttribute("TargetMode", "Closest")
-    cloneTemplate.Parent = TowersFolder
-
-    startAttackEnemy(cloneTemplate)
-
-end)
 
 TowerUpgradeEvent.OnServerInvoke = function(player, tower)
 
