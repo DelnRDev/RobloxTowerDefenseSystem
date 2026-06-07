@@ -112,10 +112,12 @@ end
 local function spawnEnemy(enemyType, WaypointsFolder)
 
     local cloneEnemy = EnemyTemplate:Clone()
+    local Humanoid = cloneEnemy:WaitForChild("Humanoid")
+
     cloneEnemy.Name = enemyType
-    cloneEnemy.Humanoid.MaxHealth = EnemyConfig[enemyType].Health
-    cloneEnemy.Humanoid.Health = EnemyConfig[enemyType].Health
-    cloneEnemy.Humanoid.WalkSpeed = EnemyConfig[enemyType].Speed
+    Humanoid.MaxHealth = EnemyConfig[enemyType].Health
+    Humanoid.Health = EnemyConfig[enemyType].Health
+    Humanoid.WalkSpeed = EnemyConfig[enemyType].Speed
     cloneEnemy:SetAttribute("isRemoved", false)
     cloneEnemy:SetAttribute("isRewarded", false)
     
@@ -134,6 +136,15 @@ local function spawnEnemy(enemyType, WaypointsFolder)
     end)
 
     cloneEnemy.Parent = EnemyFolder
+    
+    local walkAnimation = Instance.new("Animation")
+    walkAnimation.AnimationId = "rbxassetid://125749145"
+    local animator = Humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator")
+    animator.Parent = Humanoid
+    local walkTrack = animator:LoadAnimation(walkAnimation)
+    walkTrack.Looped = true
+    walkTrack:Play()
+    
     cloneEnemy:PivotTo(WaypointsFolder:WaitForChild("1").CFrame)
 
     return cloneEnemy
