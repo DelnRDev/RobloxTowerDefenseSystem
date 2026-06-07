@@ -451,6 +451,16 @@ SetTowerTargetMode.OnServerInvoke = function(player, tower, targetMode)
 
 end
 
+local function setTowerCollisionGroup(tower)
+
+    for _, obj in pairs(tower:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            obj.CollisionGroup = "Towers"
+        end
+    end
+
+end
+
 PlacementEvent2.OnServerEvent:Connect(function(player, placementCFrame, towerName)
 
     --print(towerName)
@@ -509,6 +519,8 @@ PlacementEvent2.OnServerEvent:Connect(function(player, placementCFrame, towerNam
     cloneTemplate:SetAttribute("TotalValue", TowerConfig[towerName].Cost)
     cloneTemplate:SetAttribute("TargetMode", "Closest")
     cloneTemplate:SetAttribute("isTower", true)
+
+    setTowerCollisionGroup(cloneTemplate)
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)

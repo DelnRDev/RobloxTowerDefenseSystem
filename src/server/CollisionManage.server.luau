@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 
 local PlayersGroupName = "Players"
 local EnemiesGroupName = "Enemies"
+local TowersGroupName = "Towers"
 
 local function createCollisionGroup(name)
 
@@ -29,7 +30,14 @@ if not PhysicsService:IsCollisionGroupRegistered(EnemiesGroupName) then
     createCollisionGroup(EnemiesGroupName)
 end
 
+if not PhysicsService:IsCollisionGroupRegistered(TowersGroupName) then
+    createCollisionGroup(TowersGroupName)
+end
+
 PhysicsService:CollisionGroupSetCollidable(PlayersGroupName, EnemiesGroupName, false)
+PhysicsService:CollisionGroupSetCollidable(PlayersGroupName, TowersGroupName, false)
+PhysicsService:CollisionGroupSetCollidable(EnemiesGroupName, TowersGroupName, false)
+
 
 
 Players.PlayerAdded:Connect(function(Player)
