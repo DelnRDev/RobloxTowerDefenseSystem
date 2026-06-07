@@ -147,8 +147,11 @@ local function aim(tower,enemyHumanoidRootPart)
     
     local Body = tower:FindFirstChild("Body")
 
-    local GunHead = Body:FindFirstChild("GunHead")
+    local GunHead = Body and Body:FindFirstChild("GunHead")
 
+    if not GunHead then
+        return
+    end
     
 
     local GunHeadVerticlePosition = GunHead.Position.Y
@@ -157,18 +160,49 @@ local function aim(tower,enemyHumanoidRootPart)
 
     local GunPivotPosition = Body:WaitForChild("InitialBulletPoint")
     
+    local displacementVector = EnemyPositionXZGunHeadPlane - GunPivotPosition.Position
 
-    local fHat = (EnemyPositionXZGunHeadPlane - GunPivotPosition.Position).Unit
+    if displacementVector.Magnitude < 0.001 then
+        return
+    end
+
+    local fHat = displacementVector.Unit
     local rHat = fHat:Cross(Vector3.yAxis).Unit
     local uHat = rHat:Cross(fHat).Unit
     
-    print(CFrame.new(GunPivotPosition.Position) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat))
-    print(CFrame.lookAt(GunPivotPosition.Position, EnemyPositionXZGunHeadPlane))
+    --print(CFrame.new(GunPivotPosition.Position) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat))
+    --print(CFrame.lookAt(GunPivotPosition.Position, EnemyPositionXZGunHeadPlane))
 
     local finalMatrix = CFrame.new(GunPivotPosition.Position) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat)
 
+
+    local alpha = 0.15
+
+    local currentPosition = GunPivotPosition.Position
     
-    Body:PivotTo(finalMatrix)
+    local targetPosition = finalMatrix.Position
+
+    local newPosition = currentPosition + alpha * (targetPosition - currentPosition)
+
+    local currentFHat = GunPivotPosition.CFrame.LookVector
+
+    local targetFHat = fHat
+
+    local newFHat = (currentFHat + alpha * (targetFHat - currentFHat)).Unit
+
+    local newRHat = newFHat:Cross(Vector3.yAxis).Unit
+
+    local newUHat = newRHat:Cross(newFHat).Unit
+
+
+
+
+
+    local newCF = CFrame.new(GunPivotPosition.Position) * CFrame.fromMatrix(Vector3.zero, newRHat, newUHat, -newFHat)
+
+    Body:PivotTo(newCF)
+    
+    --Body:PivotTo(Body:GetPivot():Lerp(finalMatrix, 0.15))
     --Body:PivotTo(CFrame.lookAt(GunPivotPosition.Position, EnemyPositionXZGunHeadPlane))
     --print(EnemyPositionXZGunHeadPlane)
 end
@@ -186,17 +220,17 @@ local function startAttackEnemy(tower)
 
             if enemyHumanoid and enemyHumanoid.Health > 0 then
                 
-                task.spawn(function()
+                --task.spawn(function()
                     local Body = tower:FindFirstChild("Body")
                     local GunHead = Body and Body:FindFirstChild("GunHead")
                     local enemyHumanoidRootPart = targetEnemy:FindFirstChild("HumanoidRootPart")
 
-                    if not GunHead or not enemyHumanoidRootPart then 
-                        return
+                    if  GunHead and enemyHumanoidRootPart then 
+                         showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
                     end
-                    aim(tower, enemyHumanoidRootPart)
-                    showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
-                end)
+                    --aim(tower, enemyHumanoidRootPart)
+                   
+                --end)
 
                  
                
@@ -248,17 +282,18 @@ local function startAiming(tower)
 
             if enemyHumanoid and enemyHumanoid.Health > 0 then
                 
-                task.spawn(function()
+                
+                --task.spawn(function()
                     local Body = tower:FindFirstChild("Body")
                     local GunHead = Body and Body:FindFirstChild("GunHead")
                     local enemyHumanoidRootPart = targetEnemy:FindFirstChild("HumanoidRootPart")
 
-                    if not GunHead or not enemyHumanoidRootPart then 
-                        return
+                    if  GunHead and  enemyHumanoidRootPart then 
+                        aim(tower, enemyHumanoidRootPart)
                     end
-                    aim(tower, enemyHumanoidRootPart)
+                    
                     --showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
-                end)
+                --end)
             
 
             end
@@ -473,6 +508,7 @@ PlacementEvent2.OnServerEvent:Connect(function(player, placementCFrame, towerNam
     cloneTemplate:SetAttribute("UpgradeCost", TowerConfig[towerName].UpgradeCost)
     cloneTemplate:SetAttribute("TotalValue", TowerConfig[towerName].Cost)
     cloneTemplate:SetAttribute("TargetMode", "Closest")
+    cloneTemplate:SetAttribute("isTower", true)
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)

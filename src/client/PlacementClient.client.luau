@@ -96,6 +96,22 @@ local function inBuildingArea()
 
 end
 
+local function getTowerFromPart(part)
+
+   local current = part
+
+   while current do
+        if current:GetAttribute("isTower") then
+            return current
+        end
+        current = current.Parent
+   end
+
+   return nil
+
+end
+
+
 local function updateTargetModeMenu()
 
     if towerSelected == nil then
@@ -343,7 +359,7 @@ local function updateTowerInfoGui(tower)
         UpgradeButton.Text = "Upgrade: $"..tostring(tower:GetAttribute("UpgradeCost"))
         SellButton.Text = "Sell: $"..tostring(tower:GetAttribute("TotalValue") * (1 - SELL_PENALTY_RATE))
         TargetModeButton.Text = "Target mode: "..tower:GetAttribute("TargetMode")
-        TowerNameText.Text = tower.Name:gsub("Tower", " Tower")
+        TowerNameText.Text = tower.Name:gsub("Tower$", " Tower")
    
 
 end
@@ -354,13 +370,13 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
         obj:Destroy()
     end
 
-    local cloneTower = TowerModel:Clone()
+    local cloneTower = TowerModelsFolder:WaitForChild(TowerModel.Name):Clone()
     cloneTower:PivotTo(CFrame.new(0,0,0))
     cloneTower.Parent = ViewportFrame
 
     local towerSize = cloneTower:GetExtentsSize()
 
-    local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(7, 3, -10)
+    local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(5, 3, -5)
 
     -- forming the basis for the rotational matrix
     local fHat = -cameraPositionVector.Unit
@@ -381,7 +397,6 @@ local function ShowTowerInViewportFrame(TowerModel, ViewportFrame)
     Camera.Parent = ViewportFrame
 
     ViewportFrame.CurrentCamera = Camera
-
 
 
 end
@@ -463,7 +478,7 @@ Mouse.Button1Down:Connect(function()
         end
         
 
-        if Mouse.Target:FindFirstAncestorWhichIsA("Model"):GetAttribute("Owner") ~= Player.UserId then
+        if getTowerFromPart(Mouse.Target):GetAttribute("Owner") ~= Player.UserId then
             return
         end
        -- print("Yes") 
@@ -471,7 +486,7 @@ Mouse.Button1Down:Connect(function()
         removeTowerHighlight(towerSelected) --remove highlight on previously selected tower
         removeTowerHighlight(highlightedHoverTower)
         highlightedHoverTower = nil
-        towerSelected = Mouse.Target:FindFirstAncestorWhichIsA("Model")
+        towerSelected = getTowerFromPart(Mouse.Target)
         
         --print(Mouse.Target:FindFirstAncestorWhichIsA("Model"))
         
@@ -511,12 +526,14 @@ Mouse.Button1Down:Connect(function()
 
 end)
 
+
 Mouse.Move:Connect(function()
     
     if Mouse.Target and Mouse.Target:IsDescendantOf(TowersFolder) then
 
-        local tower = Mouse.Target:FindFirstAncestorWhichIsA("Model")
-        --removeTowerHighlight(highlightedHoverTower)
+      
+        local tower = getTowerFromPart(Mouse.Target)
+       -- print(tower)
         if tower ~= towerSelected then
             --print(tower, towerSelected)
             --removeTowerHighlight
@@ -639,7 +656,7 @@ local function createTowerButton(TowerName, TowerProperties)
     
     local towerSize = cloneTowerModel:GetExtentsSize()
 
-     local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(7, 3, -10)
+     local cameraPositionVector = Vector3.new(0, towerSize.Y/2 ,towerSize.Z/2) + Vector3.new(5, 3, -5)
 
     -- forming the basis for the rotational matrix
     local fHat = -cameraPositionVector.Unit
@@ -676,6 +693,11 @@ local function createTowerButton(TowerName, TowerProperties)
            -- isPreviewing = false
             previewTower:Destroy()
             previewTower = createPreviewTower(TowerName)
+             if canPlaceTower() then
+                setPreviewColor(BrickColor.new("Bright green"))
+            else
+                setPreviewColor(BrickColor.new("Bright red"))
+            end
             --previewTower = nil
         else
             isPreviewing = true
