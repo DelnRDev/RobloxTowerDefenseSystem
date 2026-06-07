@@ -143,6 +143,36 @@ local function getTargetEnemy(tower)
 
 end
 
+local function aim(tower,enemyHumanoidRootPart)
+    
+    local Body = tower:FindFirstChild("Body")
+
+    local GunHead = Body:FindFirstChild("GunHead")
+
+    
+
+    local GunHeadVerticlePosition = GunHead.Position.Y
+
+    local EnemyPositionXZGunHeadPlane = Vector3.new(enemyHumanoidRootPart.Position.X, GunHead.Position.Y , enemyHumanoidRootPart.Position.Z)
+
+    local GunPivotPosition = Body:WaitForChild("InitialBulletPoint")
+    
+
+    local fHat = (EnemyPositionXZGunHeadPlane - GunPivotPosition.Position).Unit
+    local rHat = fHat:Cross(Vector3.yAxis).Unit
+    local uHat = rHat:Cross(fHat).Unit
+    
+    print(CFrame.new(GunPivotPosition.Position) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat))
+    print(CFrame.lookAt(GunPivotPosition.Position, EnemyPositionXZGunHeadPlane))
+
+    local finalMatrix = CFrame.new(GunPivotPosition.Position) * CFrame.fromMatrix(Vector3.zero, rHat, uHat, -fHat)
+
+    
+    Body:PivotTo(finalMatrix)
+    --Body:PivotTo(CFrame.lookAt(GunPivotPosition.Position, EnemyPositionXZGunHeadPlane))
+    --print(EnemyPositionXZGunHeadPlane)
+end
+
 
 local function startAttackEnemy(tower)
 
@@ -157,16 +187,19 @@ local function startAttackEnemy(tower)
             if enemyHumanoid and enemyHumanoid.Health > 0 then
                 
                 task.spawn(function()
-                    local GunHead = tower:FindFirstChild("GunHead")
+                    local Body = tower:FindFirstChild("Body")
+                    local GunHead = Body and Body:FindFirstChild("GunHead")
                     local enemyHumanoidRootPart = targetEnemy:FindFirstChild("HumanoidRootPart")
 
                     if not GunHead or not enemyHumanoidRootPart then 
                         return
                     end
-
+                    aim(tower, enemyHumanoidRootPart)
                     showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
                 end)
-                
+
+                 
+               
                 if enemyHumanoid.Health - tower:GetAttribute("Damage") <= 0 then
 
                     if not targetEnemy:GetAttribute("isRewarded") then
@@ -188,7 +221,9 @@ local function startAttackEnemy(tower)
                     end
                     
                 end
+                   
                     enemyHumanoid:TakeDamage(tower:GetAttribute("Damage"))
+                    
 
             end
             
@@ -199,6 +234,40 @@ local function startAttackEnemy(tower)
     end)
 
 end
+
+
+local function startAiming(tower)
+    
+    task.spawn(function()
+
+       while tower.Parent do
+          
+            local targetEnemy = getTargetEnemy(tower)
+
+            local enemyHumanoid = targetEnemy and targetEnemy:FindFirstChild("Humanoid")
+
+            if enemyHumanoid and enemyHumanoid.Health > 0 then
+                
+                task.spawn(function()
+                    local Body = tower:FindFirstChild("Body")
+                    local GunHead = Body and Body:FindFirstChild("GunHead")
+                    local enemyHumanoidRootPart = targetEnemy:FindFirstChild("HumanoidRootPart")
+
+                    if not GunHead or not enemyHumanoidRootPart then 
+                        return
+                    end
+                    aim(tower, enemyHumanoidRootPart)
+                    --showBullet(GunHead.Position, enemyHumanoidRootPart.Position)
+                end)
+            
+
+            end
+            task.wait()
+        end 
+    end)
+    
+end
+
 
 local function isOverlappingWithTower(placementCFrame, towerModel)
 
@@ -407,6 +476,6 @@ PlacementEvent2.OnServerEvent:Connect(function(player, placementCFrame, towerNam
     cloneTemplate.Parent = TowersFolder
 
     startAttackEnemy(cloneTemplate)
-
+    startAiming(cloneTemplate)
 
 end)

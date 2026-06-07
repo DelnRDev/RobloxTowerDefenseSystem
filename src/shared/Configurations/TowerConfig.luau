@@ -18,9 +18,9 @@ TowerConfig.SniperTower = {
 
 TowerConfig.RapidTower = {
 	Cost = 300,
-	Damage = 4,
+	Damage = 50, --4
 	Range = 12,
-	Cooldown = 0.2,
+	Cooldown = 3, --0.2
 	UpgradeCost = 350,
 }
 
