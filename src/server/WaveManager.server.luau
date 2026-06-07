@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
 local GameStats = Workspace:WaitForChild("GameStats")
 local CurrentWave = GameStats:WaitForChild("CurrentWave")
@@ -209,10 +210,28 @@ for i,v in ipairs(waves) do
     task.wait(5) 
 end
 
+
+
 if GAMEOVER.Value == true then
    -- print(GAMEOVER.Value)
     print("game over")
 else
     Victory.Value = true
     print("victory")
+
+    for _, player in pairs(Players:GetPlayers()) do
+
+       
+        local DataFolder = player:FindFirstChild("Data")
+        local PlayerCoins = DataFolder and DataFolder:FindFirstChild("Coins")
+
+        if PlayerCoins then
+
+            PlayerCoins.Value += 100
+
+        end
+
+
+    end
+
 end

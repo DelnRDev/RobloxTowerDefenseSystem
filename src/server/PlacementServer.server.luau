@@ -220,7 +220,7 @@ local function startAttackEnemy(tower)
 
             if enemyHumanoid and enemyHumanoid.Health > 0 then
                 
-                --task.spawn(function()
+                task.spawn(function()
                     local Body = tower:FindFirstChild("Body")
                     local GunHead = Body and Body:FindFirstChild("GunHead")
                     local enemyHumanoidRootPart = targetEnemy:FindFirstChild("HumanoidRootPart")
@@ -230,7 +230,7 @@ local function startAttackEnemy(tower)
                     end
                     --aim(tower, enemyHumanoidRootPart)
                    
-                --end)
+               end)
 
                  
                

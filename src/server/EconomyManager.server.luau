@@ -13,6 +13,14 @@ Players.PlayerAdded:Connect(function(Player)
     Money.Value = START_MONEY
     Money.Parent = LeaderstatsFolder
 
+    local DataFolder = Instance.new("Folder")
+    DataFolder.Name = "Data"
+    DataFolder.Parent = Player
+
+    local Coins = Instance.new("IntValue")
+    Coins.Name = "Coins"
+    Coins.Value = 0
+    Coins.Parent = DataFolder
     
 end)
 
