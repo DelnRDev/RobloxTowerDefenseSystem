@@ -76,9 +76,15 @@ for TowerName, TowerProperties in pairs(TowerShopConfig) do
     if PlayerUnlockedTowersFolder:FindFirstChild(TowerName) then
         UnlockButton.Text = "Owned"
         UnlockButton.BackgroundColor3 = Color3.fromRGB(161, 161, 161)
+
+        local itemCostText = newItemFrame:WaitForChild("TowerCostText")
+        itemCostText.Visible = false
     else
         UnlockButton.Text = "Unlock"
         UnlockButton.BackgroundColor3 = Color3.fromRGB(22, 218, 45)
+
+        local itemCostText = newItemFrame:WaitForChild("TowerCostText")
+        itemCostText.Text = TowerProperties.Cost.." Coins"
     end
 
     UnlockButton.MouseButton1Click:Connect(function()
@@ -89,6 +95,9 @@ for TowerName, TowerProperties in pairs(TowerShopConfig) do
 
             UnlockButton.Text = "Owned"
             UnlockButton.BackgroundColor3 = Color3.fromRGB(161, 161, 161)
+
+            local itemCostText = newItemFrame:WaitForChild("TowerCostText")
+            itemCostText.Visible = false
 
         elseif result == "NOT ENOUGH COINS" then
             
