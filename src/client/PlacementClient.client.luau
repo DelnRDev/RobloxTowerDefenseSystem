@@ -718,10 +718,35 @@ end
 local PlayerDataFolder = Player:WaitForChild("Data")
 local PlayerUnlockedTowersFolder = PlayerDataFolder:WaitForChild("UnlockedTowers")
 
-for _, TowerEquipped in pairs(PlayerUnlockedTowersFolder:GetChildren()) do    
-    if TowerEquipped.Value == true then
-        
-        createTowerButton(TowerEquipped.Name, TowerConfig[TowerEquipped.Name])
-        towerCount -= 1
+local function updateTowerEquippedFrame ()
+    for _, obj in pairs(TowerSelectionMainFrame:GetChildren()) do
+        if obj:IsA("Frame") and obj.Name ~= "ButtonFrameTemplate" then
+            obj:Destroy()
+        end
+    end
+
+    for _, TowerEquipped in pairs(PlayerUnlockedTowersFolder:GetChildren()) do    
+        if TowerEquipped.Value == true then
+            
+            createTowerButton(TowerEquipped.Name, TowerConfig[TowerEquipped.Name])
+            towerCount -= 1
+        end
     end
 end
+
+updateTowerEquippedFrame()
+
+for _, TowerEquipped in pairs(PlayerUnlockedTowersFolder:GetChildren()) do    
+    TowerEquipped.Changed:Connect(function()
+        updateTowerEquippedFrame()
+
+    end)
+end
+
+
+PlayerUnlockedTowersFolder.ChildAdded:Connect(function(child)
+   child.Changed:Connect(function()
+        updateTowerEquippedFrame()
+
+   end)
+end)

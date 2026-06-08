@@ -25,7 +25,7 @@ Players.PlayerAdded:Connect(function(Player)
 
     local Coins = Instance.new("IntValue")
     Coins.Name = "Coins"
-    Coins.Value = 0
+    Coins.Value = 10000
     Coins.Parent = DataFolder
 
     local Gems = Instance.new("IntValue")

@@ -37,7 +37,7 @@ EquipTowerRemote.OnServerInvoke = function(player, TowerName)
     local PlayerUnlockedTowersFolder = PlayerDataFolder:WaitForChild("UnlockedTowers")
 
     if PlayerUnlockedTowersFolder:FindFirstChild(TowerName) then
-        if not getNumberOfTowerEquipped(player) == MAX_TOWER_EQUIPPED then
+        if getNumberOfTowerEquipped(player) < MAX_TOWER_EQUIPPED then
             PlayerUnlockedTowersFolder:FindFirstChild(TowerName).Value = true
         else
             return "REACHED MAX EQUIPPED"
@@ -56,7 +56,7 @@ UnequipTowerRemote.OnServerInvoke = function(player, TowerName)
     local PlayerUnlockedTowersFolder = PlayerDataFolder:WaitForChild("UnlockedTowers")
 
     if PlayerUnlockedTowersFolder:FindFirstChild(TowerName) then
-        if not getNumberOfTowerEquipped(player) == MIN_TOWER_EQUIPPED then
+        if getNumberOfTowerEquipped(player) > MIN_TOWER_EQUIPPED then
             PlayerUnlockedTowersFolder:FindFirstChild(TowerName).Value = false
         else
             return "REACHED MIN EQUIPPED"
