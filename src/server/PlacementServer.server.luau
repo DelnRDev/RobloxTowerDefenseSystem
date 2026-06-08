@@ -520,6 +520,10 @@ PlacementEvent2.OnServerEvent:Connect(function(player, placementCFrame, towerNam
     cloneTemplate:SetAttribute("TargetMode", "Closest")
     cloneTemplate:SetAttribute("isTower", true)
 
+    local Body = cloneTemplate:WaitForChild("Body")
+    local InitialBulletPoint = Body:WaitForChild("InitialBulletPoint")
+    Body.PrimaryPart = InitialBulletPoint
+
     setTowerCollisionGroup(cloneTemplate)
     cloneTemplate.Parent = TowersFolder
 

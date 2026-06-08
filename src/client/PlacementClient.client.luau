@@ -714,8 +714,14 @@ local function createTowerButton(TowerName, TowerProperties)
 
 end
 
-for TowerName, Properties in pairs(TowerConfig) do    
-    
-    createTowerButton(TowerName, Properties)
-    towerCount -= 1
+
+local PlayerDataFolder = Player:WaitForChild("Data")
+local PlayerUnlockedTowersFolder = PlayerDataFolder:WaitForChild("UnlockedTowers")
+
+for _, TowerEquipped in pairs(PlayerUnlockedTowersFolder:GetChildren()) do    
+    if TowerEquipped.Value == true then
+        
+        createTowerButton(TowerEquipped.Name, TowerConfig[TowerEquipped.Name])
+        towerCount -= 1
+    end
 end
