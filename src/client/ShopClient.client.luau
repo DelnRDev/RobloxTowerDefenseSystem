@@ -4,6 +4,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SharedFolder = ReplicatedStorage:WaitForChild("Shared")
 local ConfigurationsFolder = SharedFolder:WaitForChild("Configurations")
 local TowerModelsFolder = SharedFolder:WaitForChild("TowerModels")
+local RemotesFolder = SharedFolder:WaitForChild("Remotes")
+
+local EquipTowerRemote = RemotesFolder:WaitForChild("EquipTowerRemote")
+local UnlockTowerRemote = RemotesFolder:WaitForChild("UnlockTowerRemote")
+local UnequipTowerRemote = RemotesFolder:WaitForChild("UnequipTowerRemote")
 
 local Player = Players.LocalPlayer
 local PlayerDataFolder = Player:WaitForChild("Data")
@@ -76,8 +81,31 @@ for TowerName, TowerProperties in pairs(TowerShopConfig) do
         UnlockButton.BackgroundColor3 = Color3.fromRGB(22, 218, 45)
     end
 
+    UnlockButton.MouseButton1Click:Connect(function()
+        
+        local result = UnlockTowerRemote:InvokeServer(TowerName)
+        print(result)
+        if result == "UNLOCKED" then
+
+            UnlockButton.Text = "Owned"
+            UnlockButton.BackgroundColor3 = Color3.fromRGB(161, 161, 161)
+
+        elseif result == "NOT ENOUGH COINS" then
+            
+            UnlockButton.Text = "not enough coins"
+            UnlockButton.BackgroundColor3 = Color3.fromRGB(255,0 ,0)
+            task.wait(2)
+            UnlockButton.Text = "Unlock"
+            UnlockButton.BackgroundColor3 = Color3.fromRGB(22, 218, 45)
+
+        end
+
+    end)
+
     shopTowerOrder -= 1
 end
+
+
 
 
 ShopButton.MouseButton1Click:Connect(function()

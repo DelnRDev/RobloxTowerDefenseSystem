@@ -28,6 +28,11 @@ Players.PlayerAdded:Connect(function(Player)
     Coins.Value = 0
     Coins.Parent = DataFolder
 
+    local Gems = Instance.new("IntValue")
+    Gems.Name = "Gems"
+    Gems.Value = 0
+    Gems.Parent = DataFolder
+
     local UnlockedTowersFolder = Instance.new("Folder")
     UnlockedTowersFolder.Name = "UnlockedTowers"
     UnlockedTowersFolder.Parent = DataFolder
@@ -36,6 +41,8 @@ Players.PlayerAdded:Connect(function(Player)
    BasicTower.Name = "BasicTower"
    BasicTower.Value = true
    BasicTower.Parent = UnlockedTowersFolder
+
+   
 
     
 end)
